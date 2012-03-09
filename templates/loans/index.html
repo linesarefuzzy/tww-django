@@ -1,0 +1,9 @@
+{% if loans %}
+    <div>
+    {% for loan in loans %}
+        <div><a href="/loans/{{ loan.id }}/">{{ loan.cooperative }} ({{ loan.signing_date }})</a></div>
+    {% endfor %}
+    </div>
+{% else %}
+    <p>No loans found.</p>
+{% endif %}
