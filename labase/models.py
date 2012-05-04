@@ -314,6 +314,8 @@ class Media(models.Model):
     description = models.TextField(db_column='Description', blank=True)
     class Meta:
         db_table = u'Media'
+    def __unicode__(self):
+        return unicode(self.media_path)
 
 class Member(models.Model):
     id = models.AutoField(primary_key=True, db_column='ID')
