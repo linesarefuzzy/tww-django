@@ -1,23 +1,23 @@
 {% if loans %}
-    <ul>
-    {% for loan in loans %}
-        <li class="loan">
+		<ul>
+		{% for loan in loans %}
+				<li class="loan">
 					<div class="pic">
-            {# {{ loan.queries }}<br> #}
-            {# {{ loan.cid }}<br> #}
-            {# {{ loan.image.media_path }}<br> #}
-						<img src="http://www.theworkingworld.org/{{ loan.image.media_path }}" alt="{{ loan.cooperative }}">
+						{% if loan.image.media_path %}
+							<img src="http://www.theworkingworld.org/{{ loan.image.media_path }}" alt="{{ loan.cooperative }}">
+						{% endif %}
 					</div>
 					<div class="desc">
 						<a href="/loans/{{ loan.id }}/">Project with {{ loan.cooperative }}</a><br>
 						{{ loan.short_description }}
 					</div>
-					<div class="date">
-						{{ loan.signing_date }}
+					<div class="facts">
+						{{ loan.signing_date }}<br>
+						AR${{ loan.amount }}
 					</div>
 				</li>
-    {% endfor %}
-    </ul>
+		{% endfor %}
+		</ul>
 {% else %}
-    <p>No loans found.</p>
+		<p>No loans found.</p>
 {% endif %}
