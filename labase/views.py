@@ -8,7 +8,9 @@ import re, locale
 # Media.objects.get(context_table="'Loans'", context_id=799)
 # print Media.objects.all().order_by('context_id')
 
-
+def home(request):
+	return render_to_response('home.html')
+	
 def loans(request):
 	loans = Loan.objects.filter( Q(nivel='Prestamo Activo') | Q(nivel='Prestamo Completo') ).order_by('-signing_date')[:10]
 
@@ -28,7 +30,7 @@ def loans(request):
 		# insert commas into dollar amounts
 		#l.amount = format(l.amount, ',d') # doesn't work in python 2.5
 		locale.setlocale(locale.LC_ALL, 'en_US')
-		l.amount = locale.format('%d', l.amount, grouping=True)
+		l.amount = 'AR$' + locale.format('%d', l.amount, grouping=True)
 		
 		l.queries = connection.queries
 	return render_to_response('loans/index.html', {'loans': loans})

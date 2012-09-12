@@ -24,7 +24,8 @@ urlpatterns += patterns('labase.views',
     #     DetailView.as_view(
     #         model = Loan,
     #         template_name = 'loans/loan_detail.html')),
-
+		
+		(r'^$', 'home'),
     (r'^loans/$', 'loans'),
     (r'^loans/(?P<loan_id>\d+)/$', 'loan_detail'),
 )
