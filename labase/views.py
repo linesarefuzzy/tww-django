@@ -3,7 +3,7 @@ from django.http import Http404
 from django.db import connection
 from django.db.models import Q
 from labase.models import Loan, Media
-import re
+import re, locale
 
 # Media.objects.get(context_table="'Loans'", context_id=799)
 # print Media.objects.all().order_by('context_id')
@@ -26,7 +26,9 @@ def loans(request):
 			l.image.media_path = re.sub(r'(\.[^.]+)$', r'.thumb\1', l.image.media_path)
 		
 		# insert commas into dollar amounts
-		l.amount = format(l.amount, ',d')
+		#l.amount = format(l.amount, ',d') # doesn't work in python 2.5
+		locale.setlocale(locale.LC_ALL, 'en_US')
+		l.amount = locale.format('%d', l.amount, grouping=True)
 		
 		l.queries = connection.queries
 	return render_to_response('loans/index.html', {'loans': loans})
