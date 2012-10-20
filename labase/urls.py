@@ -7,7 +7,7 @@ urlpatterns = patterns('labase.views',
     #     ListView.as_view(
     #         queryset = Loan.objects.all().order_by('-signing_date')[:20],
     #         context_object_name='loans',
-    #         template_name = 'loans/index.html')),
+    #         template_name = 'loans/loans.html')),
     # url(r'^loans/(?P<pk>\d+)/$',
     #     DetailView.as_view(
     #         model = Loan,

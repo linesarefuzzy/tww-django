@@ -37,7 +37,7 @@ def loans(request):
 		
 		
 		l.queries = connection.queries
-	return render_to_response('loans/index.html', {'loans': loans})
+	return render_to_response('loans/loans.html', {'loans': loans})
 	
 def loan_detail(request, loan_id):
 	loan = get_object_or_404(Loan, pk=loan_id)
