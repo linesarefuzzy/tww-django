@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404
 from django.db import connection
 from django.db.models import Q
-from labase.models import Loan, Media
+from loans.models import Loan, Media
 
 # Media.objects.get(context_table="'Loans'", context_id=799)
 # print Media.objects.all().order_by('context_id')

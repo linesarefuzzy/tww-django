@@ -1,8 +1,8 @@
 from django.conf.urls.defaults import *
 # from django.views.generic import DetailView, ListView
-from labase.models import Loan
+from loans.models import Loan
 
-urlpatterns = patterns('labase.views',
+urlpatterns = patterns('loans.views',
     # url(r'^loans/$',
     #     ListView.as_view(
     #         queryset = Loan.objects.all().order_by('-signing_date')[:20],

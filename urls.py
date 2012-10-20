@@ -12,5 +12,5 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
 
 		(r'^$', 'home'),
-    (r'^loans/', include('labase.urls')),
+    (r'^loans/', include('loans.urls')),
 )

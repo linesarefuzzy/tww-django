@@ -1,4 +1,4 @@
-from labase.models import *
+from loans.models import *
 from django.contrib import admin
 
 class LoanAdmin(admin.ModelAdmin):
