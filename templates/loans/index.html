@@ -2,7 +2,7 @@
 
 {% block title %}Loans{% endblock %}
 
-{% block body %}
+{% block content %}
 
 {% if loans %}
 		<ul>
@@ -15,7 +15,7 @@
 					</div>
 					<div class="desc">
 						<a href="/loans/{{ loan.id }}/">Project with {{ loan.cooperative }}</a><br>
-						{{ loan.short_description }}
+						{{ loan.description }}
 					</div>
 					<div class="facts">
 						{{ loan.signing_date }}<br>

@@ -2,3 +2,5 @@
 *.pyo
 
 settings.py
+
+settings-fl.py

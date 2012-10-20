@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'tww_labase',                      # Or path to database file if using sqlite3.
         'USER': 'tww_django',                      # Not used with sqlite3.
         'PASSWORD': '6Mbfm4aZhKYD7e8K',                  # Not used with sqlite3.
-        'HOST': 'mysql.fuzzylines.com',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': '127.0.0.1',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
