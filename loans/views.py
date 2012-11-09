@@ -1,9 +1,11 @@
 import re, locale
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.http import Http404
 from django.db import connection
 from django.db.models import Q
-from loans.models import Loan, Media
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from loans.models import Loan, Media, UserAccount
 
 # Media.objects.get(context_table="'Loans'", context_id=799)
 # print Media.objects.all().order_by('context_id')
@@ -35,10 +37,22 @@ def loans(request):
 		# descriptions from translations table
 		# l.description = l.short_description #or l.short_description_english or l.description
 		
-		
 		l.queries = connection.queries
+
 	return render_to_response('loans/loans.html', {'loans': loans})
 	
 def loan_detail(request, loan_id):
 	loan = get_object_or_404(Loan, pk=loan_id)
 	return render_to_response('loans/loan_detail.html', {'loan': loan})
+
+@login_required
+def users(request):
+	# users = get_list_or_404(UserAccount, User)
+	users = User.objects.all()
+	return render_to_response('users/users.html', {'users': users})	
+
+@login_required
+def user_profile(request, uname):
+	user = get_object_or_404(UserAccount, User=uname)
+	return render_to_response('users/user_profile.html', {'user': user})
+	
