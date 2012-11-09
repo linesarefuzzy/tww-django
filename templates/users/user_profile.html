@@ -1,4 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.first_name }} {{ user.last_name }}{% endblock %}
+
+{% block content %}
+
 <h1>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+Balance: ${{ account.balance }}
+
+{% endblock %}
 

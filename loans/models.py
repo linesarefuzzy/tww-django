@@ -718,4 +718,6 @@ class Todo(models.Model):
 class UserAccount(models.Model):
 	user = models.OneToOneField(User)
 	balance = models.DecimalField(max_digits=12, decimal_places=2)
+	def __unicode__(self):
+		return unicode(self.user.username)
 	

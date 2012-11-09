@@ -45,14 +45,18 @@ def loan_detail(request, loan_id):
 	loan = get_object_or_404(Loan, pk=loan_id)
 	return render_to_response('loans/loan_detail.html', {'loan': loan})
 
-@login_required
-def users(request):
-	# users = get_list_or_404(UserAccount, User)
-	users = User.objects.all()
-	return render_to_response('users/users.html', {'users': users})	
+# @login_required
+# def users(request):
+# 	# users = get_list_or_404(UserAccount, User)
+# 	users = UserAccount.objects.all()
+# 	return render_to_response('users/users.html', {'users': users})	
 
 @login_required
-def user_profile(request, uname):
-	user = get_object_or_404(UserAccount, User=uname)
-	return render_to_response('users/user_profile.html', {'user': user})
+def user_profile(request):
+	try:
+		user_account = UserAccount.objects.get(user=request.user)
+	except UserAccount.DoesNotExist:
+		# create UserAccount record if it doesn't exist for this user
+		pass # ...
+	return render_to_response('users/user_profile.html', {'user': request.user, 'account': user_account})
 	
