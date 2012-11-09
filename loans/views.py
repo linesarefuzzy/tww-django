@@ -1,5 +1,5 @@
 import re, locale
-from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404
 from django.db import connection
 from django.db.models import Q
@@ -44,12 +44,6 @@ def loans(request):
 def loan_detail(request, loan_id):
 	loan = get_object_or_404(Loan, pk=loan_id)
 	return render_to_response('loans/loan_detail.html', {'loan': loan})
-
-# @login_required
-# def users(request):
-# 	# users = get_list_or_404(UserAccount, User)
-# 	users = UserAccount.objects.all()
-# 	return render_to_response('users/users.html', {'users': users})	
 
 @login_required
 def user_profile(request):

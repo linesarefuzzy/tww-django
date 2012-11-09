@@ -30,7 +30,5 @@ urlpatterns += patterns('loans.views',
 		
 	(r'^loans/$', 'loans'),
 	(r'^(?P<loan_id>\d+)/$', 'loan_detail'),
-	# (r'^users/$', 'users'),
-	# (r'^users/(?P<username>\w+)/$', 'user_profile'),
 	(r'^accounts/profile/$', 'user_profile')
 )
