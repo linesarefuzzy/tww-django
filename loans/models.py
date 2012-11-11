@@ -718,6 +718,14 @@ class Todo(models.Model):
 class UserAccount(models.Model):
 	user = models.OneToOneField(User)
 	balance = models.DecimalField(max_digits=12, decimal_places=2)
+	# loans = models.ManyToManyField(Loan, through='UserContribution')
 	def __unicode__(self):
 		return unicode(self.user.username)
+
+# class UserContribution(models.Model):
+# 	user = models.ForeignKey(UserAccount)
+# 	loan = models.ForeignKey(Loan)
+# 	amount = models.DecimalField(max_digits=12, decimal_places=2)
+# 	balance = models.DecimalField(max_digits=12, decimal_places=2)
+# 	timestamp = models.DateTimeField()
 	

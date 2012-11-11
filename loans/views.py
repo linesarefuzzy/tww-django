@@ -1,10 +1,10 @@
 import re, locale
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import Http404
 from django.db import connection
 from django.db.models import Q
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from loans.models import Loan, Media, UserAccount
 
 # Media.objects.get(context_table="'Loans'", context_id=799)
@@ -50,7 +50,11 @@ def user_profile(request):
 	try:
 		user_account = UserAccount.objects.get(user=request.user)
 	except UserAccount.DoesNotExist:
-		# create UserAccount record if it doesn't exist for this user
-		pass # ...
+		# create UserAccount record if it doesn't exist for this user (TODO)
+		pass
 	return render_to_response('users/user_profile.html', {'user': request.user, 'account': user_account})
-	
+
+def logout_view(request):
+	logout(request)
+	return redirect('/accounts/login?message=loggedOut')
+	# return render_to_response('registration/login.html', {'message': "You have been logged out."})

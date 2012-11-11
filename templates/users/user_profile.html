@@ -8,7 +8,8 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-Balance: ${{ account.balance }}
+<p>Balance: ${{ account.balance }}</p>
 
-{% endblock %}
+<p><a href="/accounts/logout">Log out</a></p>
 
+{% endblock content %}

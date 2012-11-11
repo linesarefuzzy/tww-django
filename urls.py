@@ -14,7 +14,9 @@ urlpatterns = patterns('',
 	(r'^admin/', include(admin.site.urls)),
 
 	(r'^$', 'home'),
-	(r'^login/$', 'django.contrib.auth.views.login'),
+	(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+	# (r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login'),
+	(r'^accounts/logout/$', 'loans.views.logout_view'),
 )
 
 urlpatterns += patterns('loans.views',
@@ -29,6 +31,6 @@ urlpatterns += patterns('loans.views',
 	#		  template_name = 'loans/loan_detail.html')),
 		
 	(r'^loans/$', 'loans'),
-	(r'^(?P<loan_id>\d+)/$', 'loan_detail'),
+	(r'^loans/(?P<loan_id>\d+)/$', 'loan_detail'),
 	(r'^accounts/profile/$', 'user_profile')
 )
