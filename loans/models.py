@@ -20,6 +20,7 @@ class Currency(models.Model):
 	exchange_rate = models.FloatField(db_column='ExchangeRate')
 	class Meta:
 		db_table = u'Currencies'
+		verbose_name_plural = 'currencies'
 	def __unicode__(self):
 		return self.symbol
 
@@ -45,6 +46,7 @@ class AccountClass(models.Model):
 	description = models.TextField(db_column='Description', blank=True)
 	class Meta:
 		db_table = u'AccountClasses'
+		verbose_name_plural = "account classes"
 	def __unicode__(self):
 		return self.name
 
@@ -728,4 +730,3 @@ class UserAccount(models.Model):
 # 	amount = models.DecimalField(max_digits=12, decimal_places=2)
 # 	balance = models.DecimalField(max_digits=12, decimal_places=2)
 # 	timestamp = models.DateTimeField()
-	
