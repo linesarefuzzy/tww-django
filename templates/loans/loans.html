@@ -9,13 +9,16 @@
 		{% for loan in loans %}
 				<li class="loan">
 					<div class="pic">
-						{% if loan.image.media_path %}
-							<img src="http://www.theworkingworld.org/{{ loan.image.media_path }}" alt="{{ loan.cooperative }}">
+						{% if loan.thumb_path %}
+							<a href="{% url loans.views.loan_detail loan.id %}">
+								<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
+							</a>
 						{% endif %}
 					</div>
 					<div class="desc">
-						<a href="/loans/{{ loan.id }}/">Project with {{ loan.cooperative }}</a><br>
-						{{ loan.description }}
+						<a href="{% url loans.views.loan_detail loan.id %}">Project with {{ loan.cooperative }}</a><br>
+						{{ loan.short_description }}
+						{# {{loan.queries}} #}
 					</div>
 					<div class="facts">
 						{{ loan.signing_date }}<br>

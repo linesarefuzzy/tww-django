@@ -1,4 +1,24 @@
-<h1>{{ loan.cooperative }} ({{ loan.signing_date }})</h1>
+{% extends "base.html" %}
+
+{% block title %}{{ loan }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ loan }}</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
+{% if loan.picture_path %}
+	<div class="picture">
+		<img src="http://www.theworkingworld.org/{{ loan.picture_path }}" alt="{{ loan }}">
+	</div>
+{% endif %}
+<div class="short_description">
+	{{ loan.short_description|default:'' }}
+</div>
+<div class="description">
+	<h3>Details</h3>
+	{{ loan.description|default:'<span style="font-style:italic;" class="notfound">No description found.</span>' }}
+</div>
+
+{% endblock %}

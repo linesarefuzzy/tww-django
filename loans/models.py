@@ -37,6 +37,28 @@ class Division(models.Model):
 	def __unicode__(self):
 		return self.name
 
+class Member(models.Model):
+	id = models.AutoField(primary_key=True, db_column='ID')
+	first_name = models.CharField(max_length=450, db_column='FirstName')
+	last_name = models.CharField(max_length=450, db_column='LastName', blank=True)
+	username = models.CharField(max_length=300, db_column='Username', blank=True)
+	password = models.CharField(max_length=300, db_column='Password', blank=True)
+	passcode = models.CharField(max_length=300, db_column='Passcode', blank=True)
+	access_status = models.IntegerField(null=True, db_column='AccessStatus', blank=True)
+	national_id = models.CharField(max_length=105, db_column='NationalID', blank=True)
+	address = models.TextField(db_column='Address', blank=True)
+	city = models.CharField(max_length=600, db_column='City', blank=True)
+	country = models.CharField(max_length=600, db_column='Country', blank=True)
+	phone = models.CharField(max_length=150, db_column='Phone', blank=True)
+	mobile = models.CharField(max_length=180, blank=True)
+	cooperative_id = models.IntegerField(null=True, db_column='CooperativeID', blank=True)
+	birth_date = models.DateTimeField(null=True, db_column='BirthDate', blank=True)
+	payroll = models.IntegerField(db_column='Payroll')
+	class Meta:
+		db_table = u'Members'
+	def __unicode__(self):
+		return unicode(self.first_name) + u' ' + unicode(self.last_name)
+
 class AccountClass(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	class_id = models.CharField(max_length=765, db_column='ClassID')
@@ -135,10 +157,19 @@ class Cooperative(models.Model):
 	sector = models.CharField(max_length=600, db_column='Sector', blank=True)
 	industry = models.CharField(max_length=600, db_column='Industry', blank=True)
 	source = models.CharField(max_length=750, db_column='Source', blank=True)
+	# thumb_path = MediaManager()
 	class Meta:
 		db_table = u'Cooperatives'
 	def __unicode__(self):
 		return self.name
+
+	def picture_path(self):
+		return get_picture_path('Cooperatives', self.id)
+	picture_path = property(picture_path)
+
+	def thumb_path(self):
+		return get_thumb_path('Cooperatives', self.id)
+	thumb_path = property(thumb_path)
 
 class ExchangeRate(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -195,6 +226,20 @@ class Language(models.Model):
 	priority = models.IntegerField(db_column='Priority')
 	class Meta:
 		db_table = u'Languages'
+	def __unicode__(self):
+		return unicode(self.name)
+
+class Translation(models.Model):
+	id = models.AutoField(primary_key=True, db_column='ID')
+	language = models.ForeignKey(Language, db_column='Language')
+	remote_id = models.IntegerField(db_column='RemoteID')
+	remote_table = models.CharField(max_length=600, db_column='RemoteTable')
+	remote_column_name = models.CharField(max_length=600, db_column='RemoteColumnName')
+	translated_content = models.TextField(db_column='TranslatedContent')
+	class Meta:
+		db_table = u'Translations'
+	def __unicode__(self):
+		return unicode(self.id)
 
 class LoanAgentTransaction(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -285,8 +330,8 @@ class Loan(models.Model):
 	nivel = models.CharField(max_length=600, db_column='Nivel')
 	cooperative = models.ForeignKey(Cooperative, db_column='CooperativeID')
 	cooperative_members = models.IntegerField(null=True, db_column='CooperativeMembers', blank=True)
-	point_person = models.IntegerField(db_column='PointPerson')
-	second = models.IntegerField(null=True, db_column='Second', blank=True)
+	point_person = models.ForeignKey(Member, db_column='PointPerson')
+	second = models.ForeignKey(Member, related_name='loan_second', null=True, db_column='Second', blank=True)
 	representative_id = models.IntegerField(null=True, db_column='RepresentativeID', blank=True)
 	signing_date = models.DateField(null=True, db_column='SigningDate', blank=True)
 	first_interest_payment = models.DateField(null=True, db_column='FirstInterestPayment', blank=True)
@@ -302,8 +347,28 @@ class Loan(models.Model):
 	nivel_publico = models.CharField(max_length=300, db_column='NivelPublico', blank=True)
 	class Meta:
 		db_table = u'Loans'
+
 	def __unicode__(self):
-		return 'Loan ID ' + unicode(self.id)
+		try:
+			return 'Loan with ' + unicode(self.cooperative) + ((' ('+unicode(self.signing_date)+')') if self.signing_date else '')
+		except Cooperative.DoesNotExist:
+			return 'Loan ' + unicode(self.id)
+
+	def picture_path(self):
+		paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
+		return paths['picture']
+	picture_path = property(picture_path)
+
+	def thumb_path(self):
+		paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
+		return paths['thumb']
+	thumb_path = property(thumb_path)
+
+	def get_description(self, language_code='EN'):
+		return get_translation('Loans', 'Description', self.id, language_code)
+
+	def get_short_description(self, language_code='EN'):
+		return get_translation('Loans', 'ShortDescription', self.id, language_code)
 
 class Media(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -319,26 +384,6 @@ class Media(models.Model):
 		db_table = u'Media'
 	def __unicode__(self):
 		return unicode(self.media_path)
-
-class Member(models.Model):
-	id = models.AutoField(primary_key=True, db_column='ID')
-	first_name = models.CharField(max_length=450, db_column='FirstName')
-	last_name = models.CharField(max_length=450, db_column='LastName', blank=True)
-	username = models.CharField(max_length=300, db_column='Username', blank=True)
-	password = models.CharField(max_length=300, db_column='Password', blank=True)
-	passcode = models.CharField(max_length=300, db_column='Passcode', blank=True)
-	access_status = models.IntegerField(null=True, db_column='AccessStatus', blank=True)
-	national_id = models.CharField(max_length=105, db_column='NationalID', blank=True)
-	address = models.TextField(db_column='Address', blank=True)
-	city = models.CharField(max_length=600, db_column='City', blank=True)
-	country = models.CharField(max_length=600, db_column='Country', blank=True)
-	phone = models.CharField(max_length=150, db_column='Phone', blank=True)
-	mobile = models.CharField(max_length=180, blank=True)
-	cooperative_id = models.IntegerField(null=True, db_column='CooperativeID', blank=True)
-	birth_date = models.DateTimeField(null=True, db_column='BirthDate', blank=True)
-	payroll = models.IntegerField(db_column='Payroll')
-	class Meta:
-		db_table = u'Members'
 
 class NotaDeAsamblea(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -633,16 +678,6 @@ class TransactionHold(models.Model):
 	class Meta:
 		db_table = u'TransactionsHold'
 
-class Translation(models.Model):
-	id = models.AutoField(primary_key=True, db_column='ID')
-	language = models.IntegerField(db_column='Language')
-	remote_id = models.IntegerField(db_column='RemoteID')
-	remote_table = models.CharField(max_length=600, db_column='RemoteTable')
-	remote_column_name = models.CharField(max_length=600, db_column='RemoteColumnName')
-	translated_content = models.TextField(db_column='TranslatedContent')
-	class Meta:
-		db_table = u'Translations'
-
 class VendorOrder(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	date_requested = models.DateTimeField(null=True, db_column='DateRequested', blank=True)
@@ -710,23 +745,60 @@ class Todo(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	priority = models.IntegerField(db_column='Priority')
 	status = models.CharField(max_length=90, db_column='STATUS')
-	point_person = models.IntegerField(null=True, db_column='PointPerson', blank=True)
-	second = models.IntegerField(null=True, db_column='Second', blank=True)
+	point_person = models.ForeignKey(Member, null=True, db_column='PointPerson', blank=True)
+	second = models.ForeignKey(Member, related_name='todo_second', null=True, db_column='Second', blank=True)
 	modified = models.DateField(db_column='Modified')
 	description = models.TextField(db_column='Description')
 	class Meta:
 		db_table = u'todo'
+	def __unicode__(self):
+		return unicode(self.description)
 
 class UserAccount(models.Model):
 	user = models.OneToOneField(User)
-	balance = models.DecimalField(max_digits=12, decimal_places=2)
-	# loans = models.ManyToManyField(Loan, through='UserContribution')
+	balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+	loans = models.ManyToManyField(Loan, through='UserLoanContribution')
 	def __unicode__(self):
 		return unicode(self.user.username)
 
-# class UserContribution(models.Model):
-# 	user = models.ForeignKey(UserAccount)
-# 	loan = models.ForeignKey(Loan)
-# 	amount = models.DecimalField(max_digits=12, decimal_places=2)
-# 	balance = models.DecimalField(max_digits=12, decimal_places=2)
-# 	timestamp = models.DateTimeField()
+class UserLoanContribution(models.Model):
+	user = models.ForeignKey(UserAccount)
+	loan = models.ForeignKey(Loan)
+	amount = models.DecimalField(max_digits=12, decimal_places=2)
+	balance = models.DecimalField(max_digits=12, decimal_places=2)
+	timestamp = models.DateTimeField(auto_now_add=True)
+
+
+## Functions ##
+
+import re
+
+def get_picture_paths(table_name, id):
+	try:
+		image = Media.objects.filter(context_table=table_name, context_id=id).order_by('-priority','media_path')[0]
+	except IndexError:
+		return
+	# insert ".thumb" into image path
+	thumb_path = re.sub(r'(\.[^.]+)$', r'.thumb\1', image.media_path)
+	return {'picture':image.media_path, 'thumb':thumb_path}
+
+# def get_thumb_path(table_name, id):
+# 	images = Media.objects.filter(context_table=table_name, context_id=id).order_by('-priority','media_path')
+# 	if images:
+# 		# insert ".thumb" into image path
+# 		thumb_path = re.sub(r'(\.[^.]+)$', r'.thumb\1', images[0].media_path)
+# 		return thumb_path
+
+def get_translation(table_name, column_name, id, language_code='EN'):
+	translations = Translation.objects.filter(remote_table=table_name, remote_id=id, remote_column_name=column_name)
+	try:
+		content = translations.get(language__code=language_code).translated_content
+	except Translation.DoesNotExist:
+		content = translations.order_by('language__priority')[0].translated_content
+	return content
+
+def first_or_none(some_list):
+	try:
+		some_list[0]
+	except IndexError:
+		pass
