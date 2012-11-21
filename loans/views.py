@@ -29,12 +29,17 @@ def loans(request):
 def loan_detail(request, loan_id):
 	l = get_object_or_404(Loan, pk=loan_id)
 	l.short_description = l.get_short_description(language_code='EN')
-	l.description = l.get_description(language_code='EN')
+	l.description = l.get_description(language_code='EN')	
 	return render_to_response('loans/loan_detail.html', {'loan': l})
 
 @login_required
+def lend_form(request, loan_id):
+	l = get_object_or_404(Loan, pk=loan_id)
+	return render_to_response('loans/lend_form.html', {'loan': l})
+
+@login_required
 def user_profile(request):
-	user_account = UserAccount.objects.get_or_create(user=request.user)
+	user_account = UserAccount.objects.get_or_create(user=request.user)[0]
 	return render_to_response('accounts/profile.html', {'user': request.user, 'account': user_account})
 
 def logout_view(request):

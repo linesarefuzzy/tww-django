@@ -754,10 +754,15 @@ class Todo(models.Model):
 	def __unicode__(self):
 		return unicode(self.description)
 
+
 class UserAccount(models.Model):
 	user = models.OneToOneField(User)
 	balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	loans = models.ManyToManyField(Loan, through='UserLoanContribution')
+
+	created = models.DateTimeField(auto_now_add=True)
+	modified = models.DateTimeField(auto_now=True)
+
 	def __unicode__(self):
 		return unicode(self.user.username)
 
@@ -766,7 +771,14 @@ class UserLoanContribution(models.Model):
 	loan = models.ForeignKey(Loan)
 	amount = models.DecimalField(max_digits=12, decimal_places=2)
 	balance = models.DecimalField(max_digits=12, decimal_places=2)
-	timestamp = models.DateTimeField(auto_now_add=True)
+
+	created = models.DateTimeField(auto_now_add=True)
+	modified = models.DateTimeField(auto_now=True)
+
+# class UserLoanPayment(models.Model):
+# 	contribution = models.ForeignKey(UserLoanContribution)
+# 	amount = models.DecimalField(max_digits=12, decimal_places=2)
+# 	timestamp = models.DateTimeField(auto_now_add=True)
 
 
 ## Functions ##
@@ -775,7 +787,7 @@ import re
 
 def get_picture_paths(table_name, id):
 	try:
-		image = Media.objects.filter(context_table=table_name, context_id=id).order_by('-priority','media_path')[0]
+		image = Media.objects.filter(context_table=table_name, context_id=id).order_by('priority','media_path')[0]
 	except IndexError:
 		return
 	# insert ".thumb" into image path
