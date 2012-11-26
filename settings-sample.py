@@ -12,10 +12,10 @@ MANAGERS = ADMINS
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-		'NAME': 'base',						 # Or path to database file if using sqlite3.
-		'USER': 'django',					   # Not used with sqlite3.
+		'NAME': 'tww_labase',					   # Or path to database file if using sqlite3.
+		'USER': 'tww_django',					   # Not used with sqlite3.
 		'PASSWORD': '6Mbfm4aZhKYD7e8K',					 # Not used with sqlite3.
-		'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',						# Set to empty string for localhost. Not used with sqlite3.
+		'HOST': '127.0.0.1',					  # Set to empty string for localhost. Not used with sqlite3.
 		'PORT': '',						 # Set to empty string for default. Not used with sqlite3.
 	}
 }
@@ -119,7 +119,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.tz',
 	'django.contrib.messages.context_processors.messages',
 	'django.core.context_processors.request',
+	'tww.context_processors.settings_processor',
 )
+
+PATHS = {
+	'jquery':'//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
+}
 
 INSTALLED_APPS = (
 	'django.contrib.auth',
