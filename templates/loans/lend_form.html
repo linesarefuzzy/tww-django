@@ -2,6 +2,21 @@
 
 {% block title %}{{ loan }}: Lend{% endblock %}
 
+{% block head %}
+<script>
+	function show_hide_other(speed) {
+		if (!speed) speed = 'fast'
+		amount = $('#id_amount').val()
+		if (amount == "0") 
+			$('#div_other_amount').show(speed)
+		else $('#div_other_amount').hide(speed)
+	}
+	$(document).ready(function() {
+		show_hide_other('')
+	})
+</script>
+{% endblock %}
+
 {% block content %}
 
 <h1>{{ loan }}: Lend</h1>
@@ -16,12 +31,28 @@
 <div class="short_description">
 	{{ loan.short_description|default:'' }}
 </div>
-<div class="description">
-	<h3>Details</h3>
-	{{ loan.description|default:'<span style="font-style:italic;" class="notfound">No description found.</span>' }}
-</div>
-<div class="lend">
-	<a class="button" href="{% url loans.views.lend_form loan.id %}">Lend</a>
+
+<div class="lend_form">
+	{# <ul class="errorlist"> #}
+	{# 	{% for key, value in form.errors %} #}
+	{# 		<li>{{key}}: {{ value }}</li> #}
+	{# 	{% endfor %} #}
+	{# </ul> #}
+	{# {% if form.form_errors %}<p class="error_message"><strong>{{ form.form_errors }}</strong></p>{% endif %} #}
+	<form method="post" action="{% url loans.views.lend_form loan.id %}">
+		{% csrf_token %}
+		{{ form.amount.errors }}
+		{{ form.other_amount.errors }}
+		<div id="div_amount">
+			{{ form.amount.label_tag }}: 
+			{{ form.amount }}
+		</div>
+		<div id="div_other_amount">
+			{{ form.other_amount.label_tag }}:
+			{{ form.other_amount }}
+		</div>
+		<input type="submit" value="Lend">
+	</form>
 </div>
 
 {% endblock %}

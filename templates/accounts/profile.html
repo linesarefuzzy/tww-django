@@ -10,6 +10,6 @@
 
 <p>Balance: ${{ account.balance }}</p>
 
-<p><a href="/accounts/logout">Log out</a></p>
+<p><a href="{% url loans.views.logout_view %}">Log out</a></p>
 
 {% endblock content %}

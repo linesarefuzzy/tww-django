@@ -10,6 +10,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# class MyModel(models.Model):
+# 	def __unicode__(self):
+# 		return unicode(self.id)
+
 class Currency(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=150, db_column='Name')
@@ -163,13 +167,12 @@ class Cooperative(models.Model):
 	def __unicode__(self):
 		return self.name
 
-	def picture_path(self):
-		return get_picture_path('Cooperatives', self.id)
-	picture_path = property(picture_path)
-
-	def thumb_path(self):
-		return get_thumb_path('Cooperatives', self.id)
-	thumb_path = property(thumb_path)
+	# def picture_path(self):
+	# 	return get_picture_path('Cooperatives', self.id)
+	# picture_path = property(picture_path)
+	# def thumb_path(self):
+	# 	return get_thumb_path('Cooperatives', self.id)
+	# thumb_path = property(thumb_path)
 
 class ExchangeRate(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -354,15 +357,18 @@ class Loan(models.Model):
 		except Cooperative.DoesNotExist:
 			return 'Loan ' + unicode(self.id)
 
-	def picture_path(self):
-		paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
-		return paths['picture']
-	picture_path = property(picture_path)
+	# def picture_path(self):
+	# 	paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
+	# 	return paths['picture']
+	# picture_path = property(picture_path)
+	# def thumb_path(self):
+	# 	paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
+	# 	return paths['thumb']
+	# thumb_path = property(thumb_path)
 
-	def thumb_path(self):
+	def picture_paths(self):
 		paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
-		return paths['thumb']
-	thumb_path = property(thumb_path)
+		return paths
 
 	def get_description(self, language_code='EN'):
 		return get_translation('Loans', 'Description', self.id, language_code)
@@ -756,7 +762,7 @@ class Todo(models.Model):
 
 
 class UserAccount(models.Model):
-	user = models.OneToOneField(User)
+	user = models.OneToOneField(User, related_name='user_account')
 	balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	loans = models.ManyToManyField(Loan, through='UserLoanContribution')
 
@@ -785,14 +791,23 @@ class UserLoanContribution(models.Model):
 
 import re
 
-def get_picture_paths(table_name, id):
+def get_picture_paths(table_name, id, order_by=('priority','media_path')):
 	try:
-		image = Media.objects.filter(context_table=table_name, context_id=id).order_by('priority','media_path')[0]
+		image = Media.objects.filter(context_table=table_name, context_id=id).order_by(*order_by)[0]
 	except IndexError:
 		return
-	# insert ".thumb" into image path
-	thumb_path = re.sub(r'(\.[^.]+)$', r'.thumb\1', image.media_path)
-	return {'picture':image.media_path, 'thumb':thumb_path}
+	# insert various things into file name
+	thumb = re.sub(r'(\.[^.]+)$', r'.thumb\1', image.media_path)
+	small = re.sub(r'(\.[^.]+)$', r'.small\1', image.media_path)
+	medium = re.sub(r'(\.[^.]+)$', r'.medium\1', image.media_path)
+	large = re.sub(r'(\.[^.]+)$', r'.large\1', image.media_path)
+	return {
+		'full':image.media_path, 
+		'thumb':thumb,
+		'small':small,
+		'medium':medium,
+		'large':large,
+	}
 
 # def get_thumb_path(table_name, id):
 # 	images = Media.objects.filter(context_table=table_name, context_id=id).order_by('-priority','media_path')
@@ -802,7 +817,7 @@ def get_picture_paths(table_name, id):
 # 		return thumb_path
 
 def get_translation(table_name, column_name, id, language_code='EN'):
-	translations = Translation.objects.filter(remote_table=table_name, remote_id=id, remote_column_name=column_name)
+	translations = Translation.objects.filter(remote_table=table_name, remote_column_name=column_name, remote_id=id)
 	try:
 		content = translations.get(language__code=language_code).translated_content
 	except Translation.DoesNotExist:
@@ -810,7 +825,39 @@ def get_translation(table_name, column_name, id, language_code='EN'):
 	return content
 
 def first_or_none(some_list):
-	try:
-		some_list[0]
-	except IndexError:
-		pass
+	try: some_list[0]
+	except IndexError: pass
+
+
+## Forms ##
+
+from django import forms
+
+class LendForm(forms.Form):
+	AMOUNT_CHOICES = (
+		(25, '$25'),
+		(50, '$50'),
+		(100, '$100'),
+		(0, 'Other amount'),
+	)
+	amount = forms.DecimalField(widget=forms.Select(
+		choices=AMOUNT_CHOICES, 
+		attrs={'onchange':'show_hide_other()'}))
+	# amount = forms.TypedChoiceField(choices=AMOUNT_CHOICES, coerce='decimal')
+	other_amount = forms.DecimalField(max_digits=12, decimal_places=2, required=False)
+
+	def clean(self):
+		cleaned_data = super(LendForm, self).clean()
+		amount = cleaned_data.get('amount')
+		other_amount = cleaned_data.get('other_amount')
+
+		if amount == 0 and not other_amount:
+			# raise forms.ValidationError('Please enter an amount in the "Other amount" field.')
+			if not 'other_amount' in self._errors:
+				self._errors['other_amount'] = self.error_class([u'Please enter an amount in the "Other amount" field.'])
+			if 'other_amount' in cleaned_data: 
+				del cleaned_data['other_amount']
+
+		# Always return the full collection of cleaned data.
+		return cleaned_data
+	
