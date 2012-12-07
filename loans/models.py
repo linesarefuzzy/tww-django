@@ -375,6 +375,10 @@ class Loan(models.Model):
 
 	def get_short_description(self, language_code='EN'):
 		return get_translation('Loans', 'ShortDescription', self.id, language_code)
+	
+	def amount_formatted(self):
+		return format_currency(self.amount)
+	amount_formatted = property(amount_formatted)
 
 class Media(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -773,7 +777,7 @@ class UserAccount(models.Model):
 		return unicode(self.user.username)
 
 class UserLoanContribution(models.Model):
-	user = models.ForeignKey(UserAccount)
+	user_account = models.ForeignKey(UserAccount)
 	loan = models.ForeignKey(Loan)
 	amount = models.DecimalField(max_digits=12, decimal_places=2)
 	balance = models.DecimalField(max_digits=12, decimal_places=2)
@@ -789,7 +793,7 @@ class UserLoanContribution(models.Model):
 
 ## Functions ##
 
-import re
+import re, locale
 
 def get_picture_paths(table_name, id, order_by=('priority','media_path')):
 	try:
@@ -809,13 +813,6 @@ def get_picture_paths(table_name, id, order_by=('priority','media_path')):
 		'large':large,
 	}
 
-# def get_thumb_path(table_name, id):
-# 	images = Media.objects.filter(context_table=table_name, context_id=id).order_by('-priority','media_path')
-# 	if images:
-# 		# insert ".thumb" into image path
-# 		thumb_path = re.sub(r'(\.[^.]+)$', r'.thumb\1', images[0].media_path)
-# 		return thumb_path
-
 def get_translation(table_name, column_name, id, language_code='EN'):
 	translations = Translation.objects.filter(remote_table=table_name, remote_column_name=column_name, remote_id=id)
 	try:
@@ -827,6 +824,18 @@ def get_translation(table_name, column_name, id, language_code='EN'):
 def first_or_none(some_list):
 	try: some_list[0]
 	except IndexError: pass
+
+# Format dollar amounts with commas and appropriate currency sign
+def format_currency(amount):
+	# insert commas
+	#l.amount = format(l.amount, ',d') # doesn't work in python 2.5
+	locale.setlocale(locale.LC_ALL, 'en_US')
+	amount = locale.format('%d', amount, grouping=True)
+	
+	# currency sign (TODO)
+	amount = 'AR $' + amount
+	
+	return amount
 
 
 ## Forms ##

@@ -1,1 +1,1 @@
-SEQUENCE = ['1']
+SEQUENCE = ['1', '2']

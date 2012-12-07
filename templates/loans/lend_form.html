@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load url from future %}
 
 {% block title %}{{ loan }}: Lend{% endblock %}
 
@@ -39,7 +40,7 @@
 	{# 	{% endfor %} #}
 	{# </ul> #}
 	{# {% if form.form_errors %}<p class="error_message"><strong>{{ form.form_errors }}</strong></p>{% endif %} #}
-	<form method="post" action="{% url loans.views.lend_form loan.id %}">
+	<form method="post" action="{% url 'loans.views.lend_form' loan.id %}">
 		{% csrf_token %}
 		{{ form.amount.errors }}
 		{{ form.other_amount.errors }}
