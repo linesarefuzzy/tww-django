@@ -162,3 +162,6 @@ LOGGING = {
 		},
 	}
 }
+
+from django.contrib.messages import constants as message_constants
+MESSAGE_LEVEL = message_constants.DEBUG
