@@ -30,8 +30,11 @@
 				{# {{loan.queries}} #}
 			</div>
 			<div class="facts">
-				{{ loan.signing_date }}<br>
-				Loan amount: {{ loan.amount_formatted }}
+				<table class="loan_facts">
+					<tr><th>Signing date:</th> <td>{{ loan.signing_date }}</td></tr>
+					<tr><th>Loan amount:</th> <td>{{ loan.amount_formatted }}</td></tr>
+					<tr><th>Country:</th> <td>{{ loan.source_division.country }}</td></tr>
+				</table>
 			</div>
 			<div class="contribution">
 				Your contribution: US ${{ ulc.amount }}

@@ -34,11 +34,13 @@ def loan_detail(request, loan_id):
 def user_profile(request):
 	user_account = UserAccount.objects.get_or_create(user=request.user)[0]
 	# users_loans = user_account.loans.all()
+	
 	user_loan_contributions = UserLoanContribution.objects.filter(user_account=user_account)
 	users_loans = []
 	for ulc in user_loan_contributions:
 		users_loans.append((ulc, ulc.loan))
 		# messages.debug(request, users_loans)
+	
 	return render(request, 'accounts/profile.html', 
 		{'user': request.user, 'account': user_account, 'users_loans': users_loans})
 

@@ -32,8 +32,8 @@ class Division(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=765, db_column='Name')
 	external_name = models.CharField(max_length=765, db_column='ExternalName', blank=True)
-	account_division = models.IntegerField(db_column='AccountDivision')
-	super_division = models.IntegerField(null=True, db_column='SuperDivision', blank=True)
+	account_division = models.ForeignKey('self', db_column='AccountDivision')
+	super_division = models.ForeignKey('self', related_name='subdivision', null=True, db_column='SuperDivision', blank=True)
 	country = models.CharField(max_length=360, db_column='Country')
 	description = models.TextField(db_column='Description')
 	class Meta:
@@ -60,6 +60,7 @@ class Member(models.Model):
 	payroll = models.IntegerField(db_column='Payroll')
 	class Meta:
 		db_table = u'Members'
+		ordering = ['first_name']
 	def __unicode__(self):
 		return unicode(self.first_name) + u' ' + unicode(self.last_name)
 
@@ -115,6 +116,8 @@ class BasicProject(models.Model):
 	description = models.TextField(db_column='Description', blank=True)
 	class Meta:
 		db_table = u'BasicProjects'
+	def __unicode__(self):
+		return 'BasicProject '+unicode(self.id)
 
 class Blog(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -164,6 +167,7 @@ class Cooperative(models.Model):
 	# thumb_path = MediaManager()
 	class Meta:
 		db_table = u'Cooperatives'
+		ordering = ['name']
 	def __unicode__(self):
 		return self.name
 
@@ -247,7 +251,7 @@ class Translation(models.Model):
 class LoanAgentTransaction(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	account = models.IntegerField(db_column='Account')
-	member_id = models.IntegerField(null=True, db_column='MemberID', blank=True)
+	member = models.ForeignKey(Member, null=True, db_column='MemberID', blank=True)
 	loan = models.IntegerField(null=True, db_column='Loan', blank=True)
 	inflow_type = models.IntegerField(null=True, db_column='InflowType', blank=True)
 	outflow_type = models.IntegerField(null=True, db_column='OutflowType', blank=True)
@@ -324,13 +328,25 @@ class LoanType(models.Model):
 		return self.english_name
 
 class Loan(models.Model):
+	NIVEL_CHOICES = (
+		('Prestamo Activo', 'Prestamo Activo'),
+		('Prestamo Completo', 'Prestamo Completo'),
+		('Prestamo Liquidado', 'Prestamo Liquidado'),
+		('Prestamo Prospectivo', 'Prestamo Prospectivo'),
+		('Prestamo Refinanciado', 'Prestamo Refinanciado'),
+		('Relacion', 'Relacion'),
+		('Relacion Activo', 'Relacion Activo'),
+	)
+	NIVEL_PUBLICO_CHOICES = (
+		('Featured', 'Featured'),
+	)
 	id = models.AutoField(primary_key=True, db_column='ID')
 	amount = models.IntegerField(null=True, db_column='Amount', blank=True)
 	rate = models.FloatField(null=True, db_column='Rate', blank=True)
 	length = models.IntegerField(null=True, db_column='Length', blank=True)
 	loan_type = models.ForeignKey(LoanType, db_column='LoanType')
 	source_division = models.ForeignKey(Division, db_column='SourceDivision')
-	nivel = models.CharField(max_length=600, db_column='Nivel')
+	nivel = models.CharField(max_length=600, choices=NIVEL_CHOICES, db_column='Nivel')
 	cooperative = models.ForeignKey(Cooperative, db_column='CooperativeID')
 	cooperative_members = models.IntegerField(null=True, db_column='CooperativeMembers', blank=True)
 	point_person = models.ForeignKey(Member, db_column='PointPerson')
@@ -347,7 +363,11 @@ class Loan(models.Model):
 	description = models.TextField(db_column='Description', blank=True)
 	short_description_english = models.TextField(db_column='ShortDescriptionEnglish', blank=True)
 	description_english = models.TextField(db_column='DescriptionEnglish', blank=True)
-	nivel_publico = models.CharField(max_length=300, db_column='NivelPublico', blank=True)
+	nivel_publico = models.CharField(max_length=300, choices=NIVEL_PUBLICO_CHOICES, db_column='NivelPublico', blank=True)
+
+	amount_formatted = property(lambda self: format_currency(self.amount, self.source_division.country))
+	# country = property(lambda self: self.source_division.country)
+
 	class Meta:
 		db_table = u'Loans'
 
@@ -357,29 +377,15 @@ class Loan(models.Model):
 		except Cooperative.DoesNotExist:
 			return 'Loan ' + unicode(self.id)
 
-	# def picture_path(self):
-	# 	paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
-	# 	return paths['picture']
-	# picture_path = property(picture_path)
-	# def thumb_path(self):
-	# 	paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
-	# 	return paths['thumb']
-	# thumb_path = property(thumb_path)
-
 	def picture_paths(self):
 		paths = get_picture_paths('Loans', self.id) or get_picture_paths('Cooperatives', self.cooperative.id)
 		return paths
 
 	def get_description(self, language_code='EN'):
 		return get_translation('Loans', 'Description', self.id, language_code)
-
 	def get_short_description(self, language_code='EN'):
 		return get_translation('Loans', 'ShortDescription', self.id, language_code)
 	
-	def amount_formatted(self):
-		return format_currency(self.amount)
-	amount_formatted = property(amount_formatted)
-
 class Media(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	date = models.DateTimeField(db_column='Date')
@@ -387,7 +393,7 @@ class Media(models.Model):
 	media_path = models.CharField(max_length=600, db_column='MediaPath')
 	context_table = models.CharField(max_length=765, db_column='ContextTable')
 	context_id = models.IntegerField(db_column='ContextID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	old_caption = models.TextField(db_column='OldCaption', blank=True)
 	description = models.TextField(db_column='Description', blank=True)
 	class Meta:
@@ -397,7 +403,7 @@ class Media(models.Model):
 
 class NotaDeAsamblea(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	date = models.DateTimeField(db_column='Date')
 	note = models.TextField(db_column='Note')
 	class Meta:
@@ -405,7 +411,7 @@ class NotaDeAsamblea(models.Model):
 
 class Note(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	noted_id = models.IntegerField(db_column='NotedID')
 	noted_table = models.CharField(max_length=600, db_column='NotedTable')
 	date = models.DateTimeField(db_column='Date')
@@ -515,8 +521,12 @@ class ProductOrdered(models.Model):
 		db_table = u'ProductsOrdered'
 
 class ProjectEvent(models.Model):
+	TYPE_CHOICES = (
+		('Paso','Paso'),
+		('Agenda','Agenda'),
+	)
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	project_id = models.IntegerField(db_column='ProjectID')
 	project_table = models.CharField(max_length=765, db_column='ProjectTable')
 	summary = models.CharField(max_length=765, db_column='Summary')
@@ -525,24 +535,50 @@ class ProjectEvent(models.Model):
 	finalized = models.IntegerField(db_column='Finalized')
 	completed = models.DateField(null=True, db_column='Completed', blank=True)
 	modified_date = models.DateTimeField(db_column='ModifiedDate')
-	type = models.CharField(max_length=105, db_column='Type')
+	type = models.CharField(max_length=105, db_column='Type', choices=TYPE_CHOICES)
+	
+	project = property(lambda self: get_project(self))
+
 	class Meta:
 		db_table = u'ProjectEvents'
+		ordering = ['-date']
+
+	def __unicode__(self):
+		return unicode(self.date) + ' - '+unicode(self.project)
 
 class ProjectLog(models.Model):
+	PROGRESS_CHOICES = (
+		('Ahead', 'Ahead'),
+		('Behind', 'Behind'),
+		('Change Some Events', 'Change Some Events'),
+		('Change whole plan/refinance', 'Change whole plan/refinance'),
+		('Continuing stably', 'Continuing stably'),
+		('Fundamental Advance', 'Fundamental Advance'),
+		('Fundamental Problem', 'Fundamental Problem'),
+		('On time', 'On time'),
+		('Temporary Problem', 'Temporary Problem'),
+	)
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	project_id = models.IntegerField(db_column='ProjectID')
 	project_table = models.CharField(max_length=765, db_column='ProjectTable')
-	paso_id = models.IntegerField(null=True, db_column='PasoID', blank=True)
+	paso = models.ForeignKey(ProjectEvent, null=True, db_column='PasoID', blank=True)
 	date = models.DateTimeField(db_column='Date')
-	progress = models.CharField(max_length=90, db_column='Progress')
+	progress = models.CharField(max_length=90, db_column='Progress', choices=PROGRESS_CHOICES)
 	explanation = models.CharField(max_length=765, db_column='Explanation', blank=True)
 	detailed_explanation = models.TextField(db_column='DetailedExplanation', blank=True)
 	notas_privadas = models.TextField(db_column='NotasPrivadas', blank=True)
 	additional_notes = models.TextField(db_column='AdditionalNotes', blank=True)
+	
+	project = property(lambda self: get_project(self))
+
 	class Meta:
 		db_table = u'ProjectLogs'
+		ordering = ['-date']
+
+	def __unicode__(self):
+		# return (unicode(self.project.cooperative) if self.project.cooperative else self.project)+' ('+unicode(self.date)+')'
+		return unicode(self.date)+' - '+unicode(self.project)
 
 class Repayment(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -654,7 +690,7 @@ class Transaction(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	group_transaction_id = models.IntegerField(null=True, db_column='GroupTransactionID', blank=True)
 	account = models.IntegerField(db_column='Account')
-	member_id = models.IntegerField(null=True, db_column='MemberID', blank=True)
+	member = models.ForeignKey(Member, null=True, db_column='MemberID', blank=True)
 	loan = models.IntegerField(null=True, db_column='Loan', blank=True)
 	check_id = models.IntegerField(null=True, db_column='CheckID', blank=True)
 	transaction_type = models.IntegerField(null=True, db_column='TransactionType', blank=True)
@@ -704,7 +740,7 @@ class VendorOrder(models.Model):
 class WorkChangeLog(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	work_log_id = models.IntegerField(db_column='WorkLogID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	start_time = models.DateTimeField(null=True, db_column='StartTime', blank=True)
 	end_time = models.DateTimeField(null=True, db_column='EndTime', blank=True)
 	client = models.CharField(max_length=765, db_column='Client', blank=True)
@@ -714,7 +750,7 @@ class WorkChangeLog(models.Model):
 
 class WorkLog(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	start_time = models.DateTimeField(db_column='StartTime')
 	end_time = models.DateTimeField(null=True, db_column='EndTime', blank=True)
 	start_client = models.CharField(max_length=765, db_column='StartClient', blank=True)
@@ -729,7 +765,7 @@ class WorkLog(models.Model):
 
 class WorkerVacation(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
-	member_id = models.IntegerField(db_column='MemberID')
+	member = models.ForeignKey(Member, db_column='MemberID')
 	start_date = models.DateField(db_column='StartDate')
 	end_date = models.DateField(db_column='EndDate')
 	class Meta:
@@ -826,16 +862,26 @@ def first_or_none(some_list):
 	except IndexError: pass
 
 # Format dollar amounts with commas and appropriate currency sign
-def format_currency(amount):
+def format_currency(amount, country):
 	# insert commas
 	#l.amount = format(l.amount, ',d') # doesn't work in python 2.5
 	locale.setlocale(locale.LC_ALL, 'en_US')
 	amount = locale.format('%d', amount, grouping=True)
 	
-	# currency sign (TODO)
-	amount = 'AR $' + amount
+	# currency sign
+	currency = Currency.objects.get(country=country)
+	symbol = re.sub('\$', ' $', currency.symbol) # add space before $ (pretty)
+	amount = symbol + amount
 	
 	return amount
+
+def get_project(obj):
+	if obj.project_table.lower() == 'loans':
+		try: return Loan.objects.get(id=obj.project_id)
+		except Loan.DoesNotExist: pass
+	elif obj.project_table.lower() == 'basicprojects':
+		try: return BasicProject.objects.get(id=obj.project_id)
+		except BasicProject.DoesNotExist: pass
 
 
 ## Forms ##
@@ -869,4 +915,3 @@ class LendForm(forms.Form):
 
 		# Always return the full collection of cleaned data.
 		return cleaned_data
-	

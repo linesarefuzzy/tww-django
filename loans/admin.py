@@ -1,9 +1,6 @@
 from loans.models import *
 from django.contrib import admin
 
-# class UserAccount(admin.ModelAdmin):
-# 	fields = ['balance']
-
 class LoanAdmin(admin.ModelAdmin):
 	list_display = ['cooperative','amount','signing_date','nivel']
 admin.site.register(Loan, LoanAdmin)
@@ -25,4 +22,13 @@ admin.site.register(Account)
 admin.site.register(AccountClass)
 admin.site.register(Translation)
 admin.site.register(Language)
-# admin.site.register(UserLoanContribution)
+admin.site.register(Division)
+
+class ProjectLogInline(admin.TabularInline):
+	model = ProjectLog
+	extra = 0
+class ProjectEventAdmin(admin.ModelAdmin):
+	inlines = [ProjectLogInline]
+admin.site.register(ProjectEvent, ProjectEventAdmin)
+
+admin.site.register(Member)

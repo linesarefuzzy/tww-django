@@ -6,3 +6,5 @@ settings.py
 settings-fl.py
 
 settings-local.py
+
+.DS_Store
