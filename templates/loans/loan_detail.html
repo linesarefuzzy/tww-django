@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% load url from future %}
 
 {% block title %}{{ loan }}{% endblock %}
 
 {% block content %}
 
 <h1>{{ loan }}</h1>
+
+{% if error_message %}<p class="error_message"><strong>{{ error_message }}</strong></p>{% endif %}
 
 {% if loan.picture_path %}
 	<div class="picture">
@@ -20,7 +21,7 @@
 	{{ loan.description|default:'<span style="font-style:italic;" class="notfound">No description found.</span>' }}
 </div>
 <div class="lend">
-	<a class="button lend_button" href="{% url 'loans.views.lend_form' loan.id %}">Lend</a>
+	<a class="button" href="{% url loans.views.lend_form loan.id %}">Lend</a>
 </div>
 
 {% endblock %}

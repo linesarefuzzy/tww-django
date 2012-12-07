@@ -7,7 +7,13 @@
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
-{% include "messages.html" %}
+{# {% if message %} #}
+{# <p><b>{{ message }}</b></p> #}
+{# {% endif %} #}
+
+{% if request.GET.message == 'loggedOut' %}
+<p><b>You have been logged out.</b></p>
+{% endif %}
 
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}

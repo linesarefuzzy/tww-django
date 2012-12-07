@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load url from future %}
 
 {% block title %}{{ user.first_name }} {{ user.last_name }}{% endblock %}
 
@@ -7,38 +6,10 @@
 
 <h1>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
 
-<div id="logout"><a href="{% url 'loans.views.logout_view' %}">Log out</a></div>
+{% if error_message %}<p class="error_message"><strong>{{ error_message }}</strong></p>{% endif %}
 
-{% include "messages.html" %}
+<p>Balance: ${{ account.balance }}</p>
 
-<div id="balance">Balance: ${{ account.balance }}</div>
-
-<div class="users_loans">
-	<ul>
-		{% for ulc, loan in users_loans %}
-		<li class="loan">
-			<div class="pic">
-				{% if loan.thumb_path %}
-					<a href="{% url 'loans.views.loan_detail' loan.id %}">
-						<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
-					</a>
-				{% endif %}
-			</div>
-			<div class="desc">
-				<a href="{% url 'loans.views.loan_detail' loan.id %}">Project with {{ loan.cooperative }}</a><br>
-				{{ ulc.loan.short_description }}
-				{# {{loan.queries}} #}
-			</div>
-			<div class="facts">
-				{{ loan.signing_date }}<br>
-				Loan amount: {{ loan.amount_formatted }}
-			</div>
-			<div class="contribution">
-				Your contribution: US ${{ ulc.amount }}
-			</div>
-		</li>
-		{% endfor %}
-	</ul>
-</div>
+<p><a href="{% url loans.views.logout_view %}">Log out</a></p>
 
 {% endblock content %}
