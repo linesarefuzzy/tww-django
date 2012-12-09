@@ -3,8 +3,9 @@ from django.http import Http404, HttpResponseRedirect
 from django.db import connection
 # from django.db.models import Q
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.views import login
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from loans.models import *
 
@@ -47,7 +48,41 @@ def user_profile(request):
 def logout_view(request):
 	logout(request)
 	messages.success(request, 'You have been logged out.')
-	return redirect('django.contrib.auth.views.login')
+	return redirect('loans.views.login_view')
+
+def login_view(request):
+	# Login form
+	if request.method == 'POST' and request.POST['submit'] == 'Login': # If the login form has been submitted
+		lform = LoginForm(request.POST)
+		if lform.is_valid():
+			d = lform.cleaned_data
+			user = authenticate(username=d['username'], password=d['password'])
+			login(request, user)
+			return redirect('loans.views.user_profile')
+	else:
+		lform = LoginForm()
+
+	# New user registration form
+	if request.method == 'POST' and request.POST['submit'] == 'Sign Up': # If the new user form has been submitted
+		newform = NewUserForm(request.POST)
+		if newform.is_valid():
+			d = newform.cleaned_data
+			user = User.objects.create_user(
+				d['username'],
+				d['email'],
+				d['password']
+			)
+			user.first_name = d['first_name']
+			user.last_name = d['last_name']
+			user.save()
+			authenticate(username=d['username'], password=d['password'])
+			login(request, user)
+			return redirect('loans.views.user_profile')
+	else:
+		newform = NewUserForm()
+	
+	# Render page with both forms
+	return render(request, 'accounts/login.html', {'newform': newform, 'lform': lform})
 
 @login_required
 def lend_form(request, loan_id):

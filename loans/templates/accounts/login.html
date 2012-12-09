@@ -3,28 +3,14 @@
 
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+<div class="login_form">
+	<p>Already a member? Log in here:</p>
+	{% include 'accounts/includes/login_form.html' %}
+</div>
 
-{% include "messages.html" %}
-
-<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
-{% csrf_token %}
-<table>
-	{# {{ form.as_table }} #}
-	<tr>
-		<td>{{ form.username.label_tag }}</td>
-		<td>{{ form.username }}</td>
-	</tr>
-	<tr>
-		<td>{{ form.password.label_tag }}</td>
-		<td>{{ form.password }}</td>
-	</tr>
-</table>
-
-<input type="submit" value="Login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+<div class="new_user_form">
+	<p>Not a member? Sign up now, it's free!</p>
+	{% include 'accounts/includes/new_user_form.html' %}
+</div>
 
 {% endblock %}

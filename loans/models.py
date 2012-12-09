@@ -887,6 +887,57 @@ def get_project(obj):
 ## Forms ##
 
 from django import forms
+from django.contrib.auth import authenticate
+
+class LoginForm(forms.Form):
+	username = forms.CharField(max_length=30)
+	password = forms.CharField(max_length=30, widget=forms.PasswordInput())
+	
+	def clean(self):
+		data = super(LoginForm, self).clean()
+		username = data.get('username')
+		password = data.get('password')
+		
+		# Check if username exists
+		try: 
+			User.objects.get(username=username)
+		except User.DoesNotExist: 
+			raise forms.ValidationError("Username not found.")
+			return data
+		
+		# Check password
+		u = authenticate(username=username, password=password)
+		if not u:
+			raise forms.ValidationError("Incorrect password.")
+		# elif not u.is_active():
+		# 	raise forms.ValidationError("Sorry, this account is disabled.")
+		
+		return data
+	
+class NewUserForm(forms.Form):
+	error_css_class = 'error'
+	required_css_class = 'required'
+
+	username = forms.CharField(max_length=30)
+	first_name = forms.CharField()
+	last_name = forms.CharField()
+	password = forms.CharField(max_length=30, widget=forms.PasswordInput()) #render_value=False
+	password2 = forms.CharField(max_length=30, widget=forms.PasswordInput(), label='Re-enter password')
+	email = forms.EmailField()
+
+	def clean_username(self): # check username not already taken
+		try:
+			User.objects.get(username=self.cleaned_data['username'])
+		except User.DoesNotExist:
+			return self.cleaned_data['username']
+		raise forms.ValidationError("This username has been taken. Please choose another.")
+
+	def clean(self): # check if passwords match
+		d = super(NewUserForm, self).clean()
+		if 'password' in d and 'password2' in d: #check that both passed first validation
+			if d['password'] != d['password2']: # check if they match each other
+				raise forms.ValidationError("Passwords do not match")
+		return d
 
 class LendForm(forms.Form):
 	AMOUNT_CHOICES = (

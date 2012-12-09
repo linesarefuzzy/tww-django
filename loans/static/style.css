@@ -4,3 +4,11 @@
 .messages p {
 	padding: 3px;
 }
+
+form th {
+	text-align: left;
+	font-weight: normal;
+}
+form .required th {
+	font-weight: bold;
+}
