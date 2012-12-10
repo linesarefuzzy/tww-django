@@ -18,9 +18,8 @@ admin.site.register(UserAccount, UserAccountAdmin)
 
 admin.site.register(Cooperative)
 admin.site.register(Currency)
-admin.site.register(Account)
-admin.site.register(AccountClass)
-admin.site.register(Translation)
+admin.site.register(Account, list_display=['name','type'])
+admin.site.register(AccountClass) #, list_display=['name','super_class'])
 admin.site.register(Language)
 admin.site.register(Division)
 
@@ -32,3 +31,4 @@ class ProjectEventAdmin(admin.ModelAdmin):
 admin.site.register(ProjectEvent, ProjectEventAdmin)
 
 admin.site.register(Member)
+admin.site.register(Blog)

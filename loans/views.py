@@ -32,18 +32,14 @@ def loan_detail(request, loan_id):
 	for paso in l.get_pasos():
 		# if paso.finalized > 0: paso.finished_un = 'finished'
 		# else: paso.finished_un = 'unfinished'
-		if paso.completed: paso.finished_un = 'finished'
-		else: paso.finished_un = 'unfinished'
-		if not paso.summary:
-			paso.summary = paso.get_summary(language_code='EN')
-		if not paso.details:
-			paso.details = paso.get_details(language_code='EN')
+		if paso.completed: paso.is_completed = 'completed'
+		else: paso.is_completed = 'not_completed'
+		paso.summary = paso.get_translation('Summary', language_code='EN') or paso.summary
+		paso.details = paso.get_translation('Details', language_code='EN') or paso.details
 		paso.logs = []
 		for log in paso.projectlog_set.all():
-			if not log.explanation:
-				log.explanation = log.get_explanation(language_code='EN')
-			if not log.detailed_explanation:
-				log.detailed_explanation = log.get_detailed_explanation(language_code='EN')
+			log.explanation = log.get_translation('Explanation', language_code='EN')
+			log.detailed_explanation = log.get_translation('DetailedExplanation', language_code='EN')
 			paso.logs.append(log)
 		l.pasos.append(paso)
 	return render(request, 'loans/loan_detail.html', {'loan': l})
@@ -58,7 +54,6 @@ def user_profile(request):
 	for ulc in user_loan_contributions:
 		ulc.loan.thumb_path = ulc.loan.picture_paths().get('thumb')
 		users_loans.append((ulc, ulc.loan))
-		# messages.debug(request, users_loans)
 	
 	return render(request, 'accounts/profile.html', 
 		{'user': request.user, 'account': user_account, 'users_loans': users_loans})

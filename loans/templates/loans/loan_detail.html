@@ -26,11 +26,11 @@
 <div class="lend">
 	<a class="button lend_button" href="{% url 'loans.views.lend_form' loan.id %}">Lend</a>
 </div>
-<div class="calendar">
+<div class="loan_calendar">
 	<h3>Calendar</h3>
 	<ul>
 		{% for paso in loan.pasos %}
-		<li class="paso {{ paso.finished_un }}">
+		<li class="paso {{ paso.is_completed }}">
 			Milestone {{ paso.date }}: {{ paso.summary }}
 			{% if paso.completed %}
 			(Completed {{ paso.completed }})

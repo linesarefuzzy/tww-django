@@ -10,11 +10,23 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# class MyModel(models.Model):
-# 	def __unicode__(self):
-# 		return unicode(self.id)
+class MyModel(models.Model):
+	''' Convenience methods for all models '''
+	class Meta:
+		abstract = True
 
-class Currency(models.Model):
+	def __unicode__(self):
+		''' If model has a 'name' attribute, return that, else return model name + ID '''
+		if 'name' in self.__dict__:
+			return unicode(self.name)
+		else:
+			return unicode(self._meta.verbose_name.capitalize()) + ' ' + unicode(self.id)
+
+	def get_translation(self, column_name, language_code='EN'):
+		return get_translation(self._meta.db_table, column_name, self.id, language_code)
+
+
+class Currency(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=150, db_column='Name')
 	symbol = models.CharField(max_length=60, db_column='Symbol')
@@ -26,9 +38,9 @@ class Currency(models.Model):
 		db_table = u'Currencies'
 		verbose_name_plural = 'currencies'
 	def __unicode__(self):
-		return self.symbol
+		return unicode(self.symbol)
 
-class Division(models.Model):
+class Division(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=765, db_column='Name')
 	external_name = models.CharField(max_length=765, db_column='ExternalName', blank=True)
@@ -38,10 +50,8 @@ class Division(models.Model):
 	description = models.TextField(db_column='Description')
 	class Meta:
 		db_table = u'Divisions'
-	def __unicode__(self):
-		return self.name
 
-class Member(models.Model):
+class Member(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	first_name = models.CharField(max_length=450, db_column='FirstName')
 	last_name = models.CharField(max_length=450, db_column='LastName', blank=True)
@@ -64,29 +74,25 @@ class Member(models.Model):
 	def __unicode__(self):
 		return unicode(self.first_name) + u' ' + unicode(self.last_name)
 
-class AccountClass(models.Model):
+class AccountClass(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	class_id = models.CharField(max_length=765, db_column='ClassID')
-	super_class_id = models.CharField(max_length=765, db_column='SuperClassID', blank=True)
+	super_class = models.ForeignKey('self', max_length=765, db_column='SuperClassID', blank=True)
 	name = models.CharField(max_length=765, db_column='Name')
 	nombre = models.CharField(max_length=765, db_column='Nombre')
 	description = models.TextField(db_column='Description', blank=True)
 	class Meta:
 		db_table = u'AccountClasses'
 		verbose_name_plural = "account classes"
-	def __unicode__(self):
-		return self.name
 
-class AccountType(models.Model):
+class AccountType(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=150, db_column='Name')
 	description = models.TextField(db_column='Description')
 	class Meta:
 		db_table = u'AccountTypes'
-	def __unicode__(self):
-		return self.name
 
-class Account(models.Model):
+class Account(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	external_accounting_id = models.CharField(unique=True, max_length=45, db_column='ExternalAccountingID', blank=True)
 	name = models.CharField(unique=True, max_length=255, db_column='Name')
@@ -95,14 +101,12 @@ class Account(models.Model):
 	division = models.ForeignKey(Division, db_column='DivisionID')
 	currency = models.ForeignKey(Currency, db_column='Currency')
 	description = models.TextField(db_column='Description')
-	type = models.IntegerField(db_column='Type')
+	type = models.ForeignKey(AccountType, db_column='Type')
 	external_party = models.IntegerField(null=True, db_column='ExternalParty', blank=True)
 	class Meta:
 		db_table = u'Accounts'
-	def __unicode__(self):
-		return self.name
 
-class BasicProject(models.Model):
+class BasicProject(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	type = models.CharField(max_length=90, db_column='Type')
 	length = models.FloatField(db_column='Length')
@@ -117,9 +121,9 @@ class BasicProject(models.Model):
 	class Meta:
 		db_table = u'BasicProjects'
 	def __unicode__(self):
-		return 'BasicProject '+unicode(self.id)
+		return 'Basic Project '+unicode(self.name)
 
-class Blog(models.Model):
+class Blog(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	title = models.CharField(max_length=765, db_column='Title')
 	text = models.TextField(db_column='Text')
@@ -128,7 +132,7 @@ class Blog(models.Model):
 	class Meta:
 		db_table = u'Blog'
 
-class Check(models.Model):
+class Check(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	banco = models.CharField(max_length=600, db_column='Banco')
 	numero_de_cheque = models.CharField(max_length=150, db_column='NumeroDeCheque')
@@ -147,7 +151,7 @@ class Check(models.Model):
 	class Meta:
 		db_table = u'Checks'
 
-class Cooperative(models.Model):
+class Cooperative(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	la_base_fund_account_id = models.IntegerField(null=True, db_column='LaBaseFundAccountID', blank=True)
 	red_tekufen_fund_account_id = models.IntegerField(null=True, db_column='RedTekufenFundAccountID', blank=True)
@@ -168,8 +172,6 @@ class Cooperative(models.Model):
 	class Meta:
 		db_table = u'Cooperatives'
 		ordering = ['name']
-	def __unicode__(self):
-		return self.name
 
 	# def picture_path(self):
 	# 	return get_picture_path('Cooperatives', self.id)
@@ -178,7 +180,7 @@ class Cooperative(models.Model):
 	# 	return get_thumb_path('Cooperatives', self.id)
 	# thumb_path = property(thumb_path)
 
-class ExchangeRate(models.Model):
+class ExchangeRate(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	currency_id = models.IntegerField(db_column='CurrencyID')
 	exchange_rate = models.FloatField(db_column='ExchangeRate')
@@ -187,7 +189,7 @@ class ExchangeRate(models.Model):
 	class Meta:
 		db_table = u'ExchangeRates'
 
-class Goal(models.Model):
+class Goal(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=150, db_column='Name')
 	description = models.TextField(db_column='Description')
@@ -197,14 +199,14 @@ class Goal(models.Model):
 	class Meta:
 		db_table = u'Goals'
 
-class GroupTransactionID(models.Model):
+class GroupTransactionID(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	starter_transaction = models.IntegerField(null=True, db_column='StarterTransaction', blank=True)
 	date_created = models.DateTimeField(db_column='DateCreated')
 	class Meta:
 		db_table = u'GroupTransactionIDs'
 
-class InflowType(models.Model):
+class InflowType(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=150, db_column='Name')
 	nombre = models.CharField(max_length=765, db_column='Nombre', blank=True)
@@ -215,7 +217,7 @@ class InflowType(models.Model):
 	class Meta:
 		db_table = u'InflowTypes'
 
-class Inventory(models.Model):
+class Inventory(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	product_id = models.CharField(max_length=150, db_column='ProductID')
 	product_subtype = models.IntegerField(null=True, db_column='ProductSubtype', blank=True)
@@ -226,17 +228,15 @@ class Inventory(models.Model):
 	class Meta:
 		db_table = u'Inventory'
 
-class Language(models.Model):
+class Language(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	code = models.CharField(max_length=6, db_column='Code')
 	name = models.CharField(max_length=600, db_column='Name')
 	priority = models.IntegerField(db_column='Priority')
 	class Meta:
 		db_table = u'Languages'
-	def __unicode__(self):
-		return unicode(self.name)
 
-class Translation(models.Model):
+class Translation(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	language = models.ForeignKey(Language, db_column='Language')
 	remote_id = models.IntegerField(db_column='RemoteID')
@@ -245,10 +245,8 @@ class Translation(models.Model):
 	translated_content = models.TextField(db_column='TranslatedContent')
 	class Meta:
 		db_table = u'Translations'
-	def __unicode__(self):
-		return unicode(self.id)
 
-class LoanAgentTransaction(models.Model):
+class LoanAgentTransaction(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	account = models.IntegerField(db_column='Account')
 	member = models.ForeignKey(Member, null=True, db_column='MemberID', blank=True)
@@ -264,7 +262,7 @@ class LoanAgentTransaction(models.Model):
 	class Meta:
 		db_table = u'LoanAgentTransactions'
 
-class LoanInstallment(models.Model):
+class LoanInstallment(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	loan_id = models.IntegerField(db_column='LoanID')
 	date_due = models.DateField(db_column='DateDue')
@@ -274,7 +272,7 @@ class LoanInstallment(models.Model):
 	class Meta:
 		db_table = u'LoanInstallments'
 
-class LoanQuestion(models.Model):
+class LoanQuestion(MyModel):
 	id = models.AutoField(primary_key=True)
 	orden = models.IntegerField(db_column='Orden')
 	question = models.TextField()
@@ -285,7 +283,7 @@ class LoanQuestion(models.Model):
 	class Meta:
 		db_table = u'LoanQuestions'
 
-class LoanRequest(models.Model):
+class LoanRequest(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=300, db_column='Name')
 	contact = models.CharField(max_length=600, db_column='Contact')
@@ -298,14 +296,14 @@ class LoanRequest(models.Model):
 	class Meta:
 		db_table = u'LoanRequests'
 
-class LoanResponseSet(models.Model):
+class LoanResponseSet(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	response_set_id = models.IntegerField(unique=True, db_column='ResponseSetID')
 	loan_id = models.IntegerField(unique=True, db_column='LoanID')
 	class Meta:
 		db_table = u'LoanResponseSets'
 
-class LoanResponse(models.Model):
+class LoanResponse(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	question_id = models.IntegerField(db_column='QuestionID')
 	response_set_id = models.IntegerField(db_column='ResponseSetID')
@@ -316,7 +314,7 @@ class LoanResponse(models.Model):
 	class Meta:
 		db_table = u'LoanResponses'
 
-class LoanType(models.Model):
+class LoanType(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	english_name = models.CharField(max_length=765, db_column='EnglishName')
 	spanish_name = models.CharField(max_length=765, db_column='SpanishName')
@@ -327,7 +325,7 @@ class LoanType(models.Model):
 	def __unicode__(self):
 		return self.english_name
 
-class Loan(models.Model):
+class Loan(MyModel):
 	NIVEL_CHOICES = (
 		('Prestamo Activo', 'Prestamo Activo'),
 		('Prestamo Completo', 'Prestamo Completo'),
@@ -389,7 +387,7 @@ class Loan(models.Model):
 	def get_short_description(self, language_code='EN'):
 		return get_translation('Loans', 'ShortDescription', self.id, language_code)
 	
-class Media(models.Model):
+class Media(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	date = models.DateTimeField(db_column='Date')
 	priority = models.IntegerField(null=True, db_column='Priority', blank=True)
@@ -404,7 +402,7 @@ class Media(models.Model):
 	def __unicode__(self):
 		return unicode(self.media_path)
 
-class NotaDeAsamblea(models.Model):
+class NotaDeAsamblea(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	member = models.ForeignKey(Member, db_column='MemberID')
 	date = models.DateTimeField(db_column='Date')
@@ -412,7 +410,7 @@ class NotaDeAsamblea(models.Model):
 	class Meta:
 		db_table = u'NotasDeAsambleas'
 
-class Note(models.Model):
+class Note(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	member = models.ForeignKey(Member, db_column='MemberID')
 	noted_id = models.IntegerField(db_column='NotedID')
@@ -422,7 +420,7 @@ class Note(models.Model):
 	class Meta:
 		db_table = u'Notes'
 
-class Order(models.Model):
+class Order(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	user_id = models.IntegerField(null=True, db_column='UserID', blank=True)
 	transaction_id = models.IntegerField(null=True, db_column='TransactionID', blank=True)
@@ -441,7 +439,7 @@ class Order(models.Model):
 	class Meta:
 		db_table = u'Orders'
 
-class OutflowType(models.Model):
+class OutflowType(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	scope = models.CharField(max_length=210, db_column='Scope')
 	name = models.CharField(unique=True, max_length=150, db_column='Name')
@@ -452,14 +450,14 @@ class OutflowType(models.Model):
 	class Meta:
 		db_table = u'OutflowTypes'
 
-class ProductSubtypeCategory(models.Model):
+class ProductSubtypeCategory(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	name = models.CharField(max_length=765, db_column='Name')
 	description = models.TextField(db_column='Description', blank=True)
 	class Meta:
 		db_table = u'ProductSubtypeCategories'
 
-class ProductSubtype(models.Model):
+class ProductSubtype(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	subtype_category_id = models.IntegerField(db_column='SubtypeCategoryID')
 	consumer_description = models.CharField(max_length=765, db_column='ConsumerDescription')
@@ -469,7 +467,7 @@ class ProductSubtype(models.Model):
 	class Meta:
 		db_table = u'ProductSubtypes'
 
-class Product(models.Model):
+class Product(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	product_id = models.CharField(max_length=150, db_column='ProductID')
 	identifier_used_by_coop = models.CharField(max_length=765, db_column='IDentifierUsedByCoop', blank=True)
@@ -503,7 +501,7 @@ class Product(models.Model):
 	class Meta:
 		db_table = u'Products'
 
-class ProductOrdered(models.Model):
+class ProductOrdered(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	product_subtype = models.IntegerField(db_column='ProductSubtype')
 	product_id = models.CharField(max_length=765, db_column='ProductID', blank=True)
@@ -523,7 +521,7 @@ class ProductOrdered(models.Model):
 	class Meta:
 		db_table = u'ProductsOrdered'
 
-class ProjectEvent(models.Model):
+class ProjectEvent(MyModel):
 	TYPE_CHOICES = (
 		('Paso','Paso'),
 		('Agenda','Agenda'),
@@ -535,7 +533,7 @@ class ProjectEvent(models.Model):
 	summary = models.CharField(max_length=765, db_column='Summary')
 	details = models.TextField(db_column='Details', blank=True)
 	datetime = models.DateTimeField(db_column='Date') # called date in db but actually a datetime
-	finalized = models.IntegerField(db_column='Finalized') # TODO: find out what -1 means
+	finalized = models.IntegerField(db_column='Finalized') # -1, 0 or 1. TODO: find out what this means
 	completed = models.DateField(null=True, db_column='Completed', blank=True)
 	modified_date = models.DateTimeField(db_column='ModifiedDate')
 	type = models.CharField(max_length=105, db_column='Type', choices=TYPE_CHOICES)
@@ -550,12 +548,7 @@ class ProjectEvent(models.Model):
 	def __unicode__(self):
 		return unicode(self.datetime) + ' - '+unicode(self.project)
 		
-	def get_summary(self, language_code="EN"):
-		return get_translation('ProjectEvents', 'Summary', self.id, language_code)
-	def get_details(self, language_code="EN"):
-		return get_translation('ProjectEvents', 'Details', self.id, language_code)
-
-class ProjectLog(models.Model):
+class ProjectLog(MyModel):
 	PROGRESS_CHOICES = (
 		('Ahead', 'Ahead'),
 		('Behind', 'Behind'),
@@ -590,12 +583,7 @@ class ProjectLog(models.Model):
 		# return (unicode(self.project.cooperative) if self.project.cooperative else self.project)+' ('+unicode(self.date)+')'
 		return unicode(self.datetime)+' - '+unicode(self.project)
 
-	def get_explanation(self, language_code="EN"):
-		return get_translation('ProjectLogs', 'Explanation', self.id, language_code)
-	def get_detailed_explanation(self, language_code="EN"):
-		return get_translation('ProjectLogs', 'DetailedExplanation', self.id, language_code)
-
-class Repayment(models.Model):
+class Repayment(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	loan_id = models.IntegerField(db_column='LoanID')
 	date_due = models.DateTimeField(db_column='DateDue')
@@ -607,7 +595,7 @@ class Repayment(models.Model):
 	class Meta:
 		db_table = u'Repayments'
 
-class Shipment(models.Model):
+class Shipment(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	order_id = models.IntegerField(unique=True, db_column='OrderID')
 	tracking_number = models.CharField(unique=True, max_length=255, db_column='TrackingNumber', blank=True)
@@ -619,7 +607,7 @@ class Shipment(models.Model):
 	class Meta:
 		db_table = u'Shipments'
 
-class ShippingAddress(models.Model):
+class ShippingAddress(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	user_id = models.IntegerField(null=True, db_column='UserID', blank=True)
 	default_address = models.IntegerField(null=True, db_column='DefaultAddress', blank=True)
@@ -633,7 +621,7 @@ class ShippingAddress(models.Model):
 	class Meta:
 		db_table = u'ShippingAddresses'
 
-class StoreTransaction(models.Model):
+class StoreTransaction(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	response = models.CharField(max_length=765, db_column='Response', blank=True)
 	error_message = models.CharField(max_length=765, db_column='ErrorMessage', blank=True)
@@ -651,7 +639,7 @@ class StoreTransaction(models.Model):
 	class Meta:
 		db_table = u'StoreTransactions'
 
-class StoreUserCreditCard(models.Model):
+class StoreUserCreditCard(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	user_id = models.IntegerField(null=True, db_column='UserID', blank=True)
 	default_card = models.IntegerField(null=True, db_column='DefaultCard', blank=True)
@@ -671,7 +659,7 @@ class StoreUserCreditCard(models.Model):
 	class Meta:
 		db_table = u'StoreUserCreditCards'
 
-class StoreUserLog(models.Model):
+class StoreUserLog(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	date = models.DateTimeField(db_column='Date')
 	tracking_id = models.CharField(max_length=60, db_column='TrackingID')
@@ -681,7 +669,7 @@ class StoreUserLog(models.Model):
 	class Meta:
 		db_table = u'StoreUserLog'
 
-class StoreUser(models.Model):
+class StoreUser(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	email = models.CharField(unique=True, max_length=255, db_column='Email', blank=True)
 	password = models.CharField(max_length=765, db_column='Password', blank=True)
@@ -690,7 +678,7 @@ class StoreUser(models.Model):
 	class Meta:
 		db_table = u'StoreUsers'
 
-class TransactionType(models.Model):
+class TransactionType(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	scope = models.CharField(max_length=210, db_column='Scope')
 	name = models.CharField(unique=True, max_length=150, db_column='Name')
@@ -701,7 +689,7 @@ class TransactionType(models.Model):
 	class Meta:
 		db_table = u'TransactionTypes'
 
-class Transaction(models.Model):
+class Transaction(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	group_transaction_id = models.IntegerField(null=True, db_column='GroupTransactionID', blank=True)
 	account = models.IntegerField(db_column='Account')
@@ -727,7 +715,7 @@ class Transaction(models.Model):
 	class Meta:
 		db_table = u'Transactions'
 
-class TransactionHold(models.Model):
+class TransactionHold(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	account = models.IntegerField(db_column='Account')
 	income_type = models.IntegerField(null=True, db_column='IncomeType', blank=True)
@@ -739,7 +727,7 @@ class TransactionHold(models.Model):
 	class Meta:
 		db_table = u'TransactionsHold'
 
-class VendorOrder(models.Model):
+class VendorOrder(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	date_requested = models.DateTimeField(null=True, db_column='DateRequested', blank=True)
 	date_received = models.DateTimeField(null=True, db_column='DateReceived', blank=True)
@@ -752,7 +740,7 @@ class VendorOrder(models.Model):
 	class Meta:
 		db_table = u'VendorOrders'
 
-class WorkChangeLog(models.Model):
+class WorkChangeLog(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	work_log_id = models.IntegerField(db_column='WorkLogID')
 	member = models.ForeignKey(Member, db_column='MemberID')
@@ -763,7 +751,7 @@ class WorkChangeLog(models.Model):
 	class Meta:
 		db_table = u'WorkChangeLog'
 
-class WorkLog(models.Model):
+class WorkLog(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	member = models.ForeignKey(Member, db_column='MemberID')
 	start_time = models.DateTimeField(db_column='StartTime')
@@ -778,7 +766,7 @@ class WorkLog(models.Model):
 	class Meta:
 		db_table = u'WorkLog'
 
-class WorkerVacation(models.Model):
+class WorkerVacation(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	member = models.ForeignKey(Member, db_column='MemberID')
 	start_date = models.DateField(db_column='StartDate')
@@ -786,7 +774,7 @@ class WorkerVacation(models.Model):
 	class Meta:
 		db_table = u'WorkerVacation'
 
-class Mailinglist(models.Model):
+class Mailinglist(MyModel):
 	id = models.AutoField(primary_key=True)
 	firstname = models.CharField(max_length=600)
 	lastname = models.CharField(max_length=600)
@@ -795,14 +783,14 @@ class Mailinglist(models.Model):
 	class Meta:
 		db_table = u'mailinglist'
 
-class Test(models.Model):
+class Test(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	test = models.CharField(max_length=765, db_column='Test')
 	thedate = models.DateTimeField(null=True, blank=True)
 	class Meta:
 		db_table = u'test'
 
-class Todo(models.Model):
+class Todo(MyModel):
 	id = models.AutoField(primary_key=True, db_column='ID')
 	priority = models.IntegerField(db_column='Priority')
 	status = models.CharField(max_length=90, db_column='STATUS')
@@ -816,7 +804,7 @@ class Todo(models.Model):
 		return unicode(self.description)
 
 
-class UserAccount(models.Model):
+class UserAccount(MyModel):
 	user = models.OneToOneField(User, related_name='user_account')
 	balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	loans = models.ManyToManyField(Loan, through='UserLoanContribution')
@@ -827,7 +815,7 @@ class UserAccount(models.Model):
 	def __unicode__(self):
 		return unicode(self.user.username)
 
-class UserLoanContribution(models.Model):
+class UserLoanContribution(MyModel):
 	user_account = models.ForeignKey(UserAccount)
 	loan = models.ForeignKey(Loan)
 	amount = models.DecimalField(max_digits=12, decimal_places=2)
@@ -836,7 +824,7 @@ class UserLoanContribution(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
 
-# class UserLoanPayment(models.Model):
+# class UserLoanPayment(MyModel):
 # 	contribution = models.ForeignKey(UserLoanContribution)
 # 	amount = models.DecimalField(max_digits=12, decimal_places=2)
 # 	timestamp = models.DateTimeField(auto_now_add=True)

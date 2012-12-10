@@ -1,7 +1,10 @@
 import django
 from loans.models import *
 
-# l = Loan.objects.get(id=878)
+l = Loan.objects.get(id=878)
+print l.__dict__.keys()
+# print l.__class__.verbose_name
+
 # pasos = l.pasos
 # p = pasos[0]
 # 
@@ -18,3 +21,5 @@ from loans.models import *
 # 	first_name = forms.CharField()
 # 
 # print MyForm()
+
+
