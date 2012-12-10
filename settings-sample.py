@@ -2,6 +2,8 @@
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+from django.contrib.messages import constants as message_constants
+MESSAGE_LEVEL = message_constants.DEBUG
 
 ADMINS = (
 	# ('Your Name', 'your_email@domain.com'),
@@ -163,6 +165,3 @@ LOGGING = {
 		},
 	}
 }
-
-from django.contrib.messages import constants as message_constants
-MESSAGE_LEVEL = message_constants.DEBUG

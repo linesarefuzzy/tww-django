@@ -5,15 +5,16 @@
 
 {% block content %}
 
-<h1>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
+<h1>{{ user.get_full_name }} ({{ user.username }})</h1>
 
 <div id="logout"><a href="{% url 'loans.views.logout_view' %}">Log out</a></div>
 
 {% include "includes/messages.html" %}
 
-<div id="balance">Balance: ${{ account.balance }}</div>
+<div class="balance">Balance: ${{ account.balance }}</div>
 
 <div class="users_loans">
+	<h2>My Loans</h2>
 	<ul>
 		{% for ulc, loan in users_loans %}
 		<li class="loan">
@@ -26,8 +27,7 @@
 			</div>
 			<div class="desc">
 				<a href="{% url 'loans.views.loan_detail' loan.id %}">Project with {{ loan.cooperative }}</a><br>
-				{{ ulc.loan.short_description }}
-				{# {{loan.queries}} #}
+				{{ loan.short_description }}
 			</div>
 			<div class="facts">
 				<table class="loan_facts">
@@ -43,5 +43,7 @@
 		{% endfor %}
 	</ul>
 </div>
+
+<p><a href="{% url 'loans.views.loans' %}">Make a New Loan</a></p>
 
 {% endblock content %}

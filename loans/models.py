@@ -367,6 +367,9 @@ class Loan(models.Model):
 
 	amount_formatted = property(lambda self: format_currency(self.amount, self.source_division.country))
 	# country = property(lambda self: self.source_division.country)
+	def get_pasos(self):
+		return ProjectEvent.objects.filter(project_table__iexact='loans', project_id=self.id)
+	# pasos = property(get_pasos)
 
 	class Meta:
 		db_table = u'Loans'
@@ -531,20 +534,26 @@ class ProjectEvent(models.Model):
 	project_table = models.CharField(max_length=765, db_column='ProjectTable')
 	summary = models.CharField(max_length=765, db_column='Summary')
 	details = models.TextField(db_column='Details', blank=True)
-	date = models.DateTimeField(db_column='Date')
-	finalized = models.IntegerField(db_column='Finalized')
+	datetime = models.DateTimeField(db_column='Date') # called date in db but actually a datetime
+	finalized = models.IntegerField(db_column='Finalized') # TODO: find out what -1 means
 	completed = models.DateField(null=True, db_column='Completed', blank=True)
 	modified_date = models.DateTimeField(db_column='ModifiedDate')
 	type = models.CharField(max_length=105, db_column='Type', choices=TYPE_CHOICES)
 	
 	project = property(lambda self: get_project(self))
+	date = property(lambda self: self.datetime.date()) # times are not used - all are set to midnight
 
 	class Meta:
 		db_table = u'ProjectEvents'
-		ordering = ['-date']
+		ordering = ['datetime']
 
 	def __unicode__(self):
-		return unicode(self.date) + ' - '+unicode(self.project)
+		return unicode(self.datetime) + ' - '+unicode(self.project)
+		
+	def get_summary(self, language_code="EN"):
+		return get_translation('ProjectEvents', 'Summary', self.id, language_code)
+	def get_details(self, language_code="EN"):
+		return get_translation('ProjectEvents', 'Details', self.id, language_code)
 
 class ProjectLog(models.Model):
 	PROGRESS_CHOICES = (
@@ -563,7 +572,7 @@ class ProjectLog(models.Model):
 	project_id = models.IntegerField(db_column='ProjectID')
 	project_table = models.CharField(max_length=765, db_column='ProjectTable')
 	paso = models.ForeignKey(ProjectEvent, null=True, db_column='PasoID', blank=True)
-	date = models.DateTimeField(db_column='Date')
+	datetime = models.DateTimeField(db_column='Date') # called date in db but actually a datetime
 	progress = models.CharField(max_length=90, db_column='Progress', choices=PROGRESS_CHOICES)
 	explanation = models.CharField(max_length=765, db_column='Explanation', blank=True)
 	detailed_explanation = models.TextField(db_column='DetailedExplanation', blank=True)
@@ -571,14 +580,20 @@ class ProjectLog(models.Model):
 	additional_notes = models.TextField(db_column='AdditionalNotes', blank=True)
 	
 	project = property(lambda self: get_project(self))
+	date = property(lambda self: self.datetime.date) # times are not used - all are set to midnight
 
 	class Meta:
 		db_table = u'ProjectLogs'
-		ordering = ['-date']
+		ordering = ['datetime']
 
 	def __unicode__(self):
 		# return (unicode(self.project.cooperative) if self.project.cooperative else self.project)+' ('+unicode(self.date)+')'
-		return unicode(self.date)+' - '+unicode(self.project)
+		return unicode(self.datetime)+' - '+unicode(self.project)
+
+	def get_explanation(self, language_code="EN"):
+		return get_translation('ProjectLogs', 'Explanation', self.id, language_code)
+	def get_detailed_explanation(self, language_code="EN"):
+		return get_translation('ProjectLogs', 'DetailedExplanation', self.id, language_code)
 
 class Repayment(models.Model):
 	id = models.AutoField(primary_key=True, db_column='ID')
@@ -835,7 +850,7 @@ def get_picture_paths(table_name, id, order_by=('priority','media_path')):
 	try:
 		image = Media.objects.filter(context_table=table_name, context_id=id).order_by(*order_by)[0]
 	except IndexError:
-		return
+		return {}
 	# insert various things into file name
 	thumb = re.sub(r'(\.[^.]+)$', r'.thumb\1', image.media_path)
 	small = re.sub(r'(\.[^.]+)$', r'.small\1', image.media_path)
@@ -851,11 +866,15 @@ def get_picture_paths(table_name, id, order_by=('priority','media_path')):
 
 def get_translation(table_name, column_name, id, language_code='EN'):
 	translations = Translation.objects.filter(remote_table=table_name, remote_column_name=column_name, remote_id=id)
-	try:
-		content = translations.get(language__code=language_code).translated_content
-	except Translation.DoesNotExist:
-		content = translations.order_by('language__priority')[0].translated_content
-	return content
+	if translations:
+		try:
+			content = translations.get(language__code=language_code).translated_content
+		except Translation.DoesNotExist:
+			content = translations.order_by('language__priority')[0].translated_content
+		return content
+	else: 
+		# raise Translation.DoesNotExist
+		return ''
 
 def first_or_none(some_list):
 	try: some_list[0]
@@ -888,6 +907,7 @@ def get_project(obj):
 
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import UserCreationForm
 
 class LoginForm(forms.Form):
 	username = forms.CharField(max_length=30)
@@ -913,7 +933,8 @@ class LoginForm(forms.Form):
 		# 	raise forms.ValidationError("Sorry, this account is disabled.")
 		
 		return data
-	
+
+# class NewUserForm(UserCreationForm):
 class NewUserForm(forms.Form):
 	error_css_class = 'error'
 	required_css_class = 'required'
@@ -921,7 +942,7 @@ class NewUserForm(forms.Form):
 	username = forms.CharField(max_length=30)
 	first_name = forms.CharField()
 	last_name = forms.CharField()
-	password = forms.CharField(max_length=30, widget=forms.PasswordInput()) #render_value=False
+	password1 = forms.CharField(max_length=30, widget=forms.PasswordInput()) #render_value=False
 	password2 = forms.CharField(max_length=30, widget=forms.PasswordInput(), label='Re-enter password')
 	email = forms.EmailField()
 
@@ -931,11 +952,11 @@ class NewUserForm(forms.Form):
 		except User.DoesNotExist:
 			return self.cleaned_data['username']
 		raise forms.ValidationError("This username has been taken. Please choose another.")
-
+	
 	def clean(self): # check if passwords match
 		d = super(NewUserForm, self).clean()
-		if 'password' in d and 'password2' in d: #check that both passed first validation
-			if d['password'] != d['password2']: # check if they match each other
+		if 'password1' in d and 'password2' in d: #check that both passed first validation
+			if d['password1'] != d['password2']: # check if they match each other
 				raise forms.ValidationError("Passwords do not match")
 		return d
 

@@ -5,7 +5,11 @@
 
 {% block content %}
 
+<a href="{% url 'loans.views.loans' %}">&lt; Back to Loan List</a>
+
 <h1>{{ loan }}</h1>
+
+{% include "includes/messages.html" %}
 
 {% if loan.picture_path %}
 	<div class="picture">
@@ -21,6 +25,32 @@
 </div>
 <div class="lend">
 	<a class="button lend_button" href="{% url 'loans.views.lend_form' loan.id %}">Lend</a>
+</div>
+<div class="calendar">
+	<h3>Calendar</h3>
+	<ul>
+		{% for paso in loan.pasos %}
+		<li class="paso {{ paso.finished_un }}">
+			Milestone {{ paso.date }}: {{ paso.summary }}
+			{% if paso.completed %}
+			(Completed {{ paso.completed }})
+			{% else %}
+			(Not yet completed)
+			{% endif %}
+			{% if paso.details %}<br>Details: {{ paso.details }}{% endif %}
+			<ul>
+				{% for log in paso.logs %}
+				<li class="log">Log {{ log.date }}: {{ log.explanation }}
+					<ul>
+						<li>Progress: {{ log.progress }}</li>
+						<li>Details: {{ log.detailed_explanation }}</li>
+					</ul>
+				</li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
 </div>
 
 {% endblock %}
