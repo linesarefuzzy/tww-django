@@ -1,6 +1,8 @@
-/* ----- reset -------*/
+/* ----- load reset.css -------*/
 @import url("reset.css");
 
+/* ----- load boot.css -------*/
+@import url("boot.css");
 .messages {
 	background-color: rgb(255, 255, 123);
 }
