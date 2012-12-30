@@ -16,4 +16,7 @@ form th {
 }
 form .required th {
 	font-weight: bold;
+	background:f7f7f7;
+	border: 1px solid #ddd;
+	color: #444;
 }
