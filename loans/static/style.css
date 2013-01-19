@@ -20,3 +20,7 @@ form .required th {
 	border: 1px solid #ddd;
 	color: #444;
 }
+
+li.loan {
+	margin: 25px 0;
+}

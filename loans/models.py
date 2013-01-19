@@ -353,7 +353,7 @@ class Loan(MyModel):
 	signing_date = models.DateField(null=True, db_column='SigningDate', blank=True)
 	first_interest_payment = models.DateField(null=True, db_column='FirstInterestPayment', blank=True)
 	first_payment_date = models.DateField(null=True, db_column='FirstPaymentDate', blank=True)
-	fecha_de_finalizacion = models.DateTimeField(null=True, db_column='FechaDeFinalizacion', blank=True)
+	fecha_de_finalizacion = models.DateField(null=True, db_column='FechaDeFinalizacion', blank=True)
 	contrato_electronico = models.CharField(max_length=765, db_column='ContratoElectronico', blank=True)
 	prospective = models.IntegerField(null=True, db_column='Prospective', blank=True)
 	projected_return = models.FloatField(null=True, db_column='ProjectedReturn', blank=True)
