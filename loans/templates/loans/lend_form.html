@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block content %}
-
+<div class="container">
 <h1>{{ loan }}: Lend</h1>
 
 {% if error_message %}<p class="error_message"><strong>{{ error_message }}</strong></p>{% endif %}
@@ -55,5 +55,5 @@
 		<input type="submit" class="btn btn-primary" value="Lend">
 	</form>
 </div>
-
+</div> <!-- /.container -->
 {% endblock %}
