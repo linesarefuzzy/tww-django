@@ -5,11 +5,11 @@
 
 {% block content %}
 
-{% if loans %}
+{% if loans %}  <div class="container">
 		<ul>
 		{% for loan in loans %}
 				<li class="loan">
-					<div class="pic">
+					<div class="pic img-polaroid">
 						{% if loan.thumb_path %}
 							<a href="{% url 'loans.views.loan_detail' loan.id %}">
 								<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
@@ -27,8 +27,10 @@
 				</li>
 		{% endfor %}
 		</ul>
+	
 {% else %}
 		<p>No loans found.</p>
 {% endif %}
 
 {% endblock %}
+	</div> <!-- /container -->
