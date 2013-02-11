@@ -4,7 +4,7 @@
 {% block title %}{{ loan }}{% endblock %}
 
 {% block content %}
-
+<div class="container">
 <a href="{% url 'loans.views.loans' %}">&lt; Back to Loan List</a>
 
 <h1>{{ loan }}</h1>
@@ -54,3 +54,4 @@
 </div>
 
 {% endblock %}
+ </div> <!-- /.container -->
