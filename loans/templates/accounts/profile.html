@@ -18,7 +18,7 @@
 	<ul>
 		{% for ulc, loan in users_loans %}
 		<li class="loan">
-			<div class="pic">
+			<div class="pull-right user_img pic">
 				{% if loan.thumb_path %}
 					<a href="{% url 'loans.views.loan_detail' loan.id %}">
 						<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
@@ -44,6 +44,6 @@
 	</ul>
 </div>
 
-<p><a href="{% url 'loans.views.loans' %}">Make a New Loan</a></p>
+<p><a class="btn btn-primary pull-right mk_loan_btn" href="{% url 'loans.views.loans' %}">Make a New Loan</a></p>
 
 {% endblock content %}
