@@ -48,3 +48,7 @@ form .required th {
 li.loan {
 	margin: 25px 0;
 }
+
+.chart{margin-left:-35px; margin-top:-10px; max-width: 380px;}
+.user_img{margin-top:-200px; margin-right:10px;}
+.mk_loan_btn{width: 107px;margin-top:-80px; margin-right:10px;}
