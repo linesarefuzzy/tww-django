@@ -6,7 +6,7 @@
 
 <form id="login_form" class="form-signin" method="post">
 {% csrf_token %}
-<table>
+<table class="table">
 	{# {{ lform.as_table }} #}
 	<tr class="required">
 		<th>{{ lform.username.label_tag }}:</th>
