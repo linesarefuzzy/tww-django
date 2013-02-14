@@ -5,7 +5,7 @@
 
 {% block content %}
 
-{% if loans %}  <div class="container">
+{% if loans %}
 		<ul>
 		{% for loan in loans %}
 				<li class="loan">
@@ -32,5 +32,4 @@
 		<p>No loans found.</p>
 {% endif %}
 
-{% endblock %}
-	</div> <!-- /container -->
+{% endblock content %}
