@@ -19,6 +19,8 @@
 {% endblock %}
 
 {% block content %}
+<div class="span_6">
+    <div class="row">
 <h1>{{ loan }}: Lend</h1>
 
 {% if error_message %}<p class="error_message"><strong>{{ error_message }}</strong></p>{% endif %}
@@ -31,7 +33,10 @@
 <div class="short_description">
 	{{ loan.short_description|default:'' }}
 </div>
-
+ </div><!---/.row--->
+</div><!---/.span_6--->
+<div class="span_6">
+     <div class="row">
 <div class="lend_form">
 	{# <ul class="errorlist"> #}
 	{# 	{% for key, value in form.errors %} #}
@@ -53,5 +58,7 @@
 		</div>
 		<input type="submit" class="btn btn-primary" value="Lend">
 	</form>
-</div>
+</div><!---/.lend_form--->
+      </div><!---/.row--->
+    </div><!---/.span_6--->
 {% endblock %}
