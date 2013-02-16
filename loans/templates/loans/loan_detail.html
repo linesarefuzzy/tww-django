@@ -4,8 +4,9 @@
 {% block title %}{{ loan }}{% endblock %}
 
 {% block content %}
-<a href="{% url 'loans.views.loans' %}">&lt; Back to Loan List</a>
-
+<div class="pull-right"><a class="btn btn-link" href="{% url 'loans.views.loans' %}">&lt; Back to Loan List</a></div>
+<div class="span_12">
+      <div class="row">
 <h1>{{ loan }}</h1>
 
 {% include "includes/messages.html" %}
@@ -51,5 +52,6 @@
 		{% endfor %}
 	</ul>
 </div>
-
+    </div><!---/.row--->
+  </div><!---/.span_12--->
 {% endblock content %}
