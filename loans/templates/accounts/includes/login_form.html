@@ -6,17 +6,16 @@
 
 <form id="login_form" class="form-signin" method="post">
 {% csrf_token %}
-<table class="table">
+
 	{# {{ lform.as_table }} #}
-	<tr class="required">
-		<th>{{ lform.username.label_tag }}:</th>
-		<td>{{ lform.username }}</td>
-	</tr>
-	<tr class="required">
-		<th>{{ lform.password.label_tag }}:</th>
-		<td>{{ lform.password }}</td>
-	</tr>
-</table>
+	<p class="required">
+		<label>{{ lform.username.label_tag }}:</label
+		<p>{{ lform.username }}</p>
+	</p>
+	<p class="required">
+		<label>{{ lform.password.label_tag }}:</label>
+		<p>{{ lform.password }}</p>
+	</p>
 
 <input type="submit" class="btn btn-large btn-primary" name="submit" value="Login">
 <input type="hidden" name="next" value="{{ next }}">
