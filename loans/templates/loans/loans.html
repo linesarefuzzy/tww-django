@@ -6,28 +6,32 @@
 {% block content %}
 
 {% if loans %}
+
+     <div class="span_12">
+         <div class="row clearfix">
 		<ul>
 		{% for loan in loans %}
-				<li class="loan">
+				<li class="loan clearfix">
 					<div class="pic img-polaroid">
 						{% if loan.thumb_path %}
-							<a href="{% url 'loans.views.loan_detail' loan.id %}">
+						       <p><a href="{% url 'loans.views.loan_detail' loan.id %}">
 								<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
-							</a>
+							</a></p>
 						{% endif %}
 					</div>
 					<div class="desc">
-						<a href="{% url 'loans.views.loan_detail' loan.id %}">Project with {{ loan.cooperative }}</a><br>
-						{{ loan.short_description }}
+						<p><a href="{% url 'loans.views.loan_detail' loan.id %}">Project with {{ loan.cooperative }}</a><br>
+						{{ loan.short_description }}</p>
 					</div>
 					<div class="facts">
-						{{ loan.signing_date }}<br>
-						{{ loan.amount_formatted }}
+						<p>{{ loan.signing_date }}<br>
+						{{ loan.amount_formatted }}</p>
 					</div>
 				</li>
 		{% endfor %}
 		</ul>
-	
+		</div><!---/.row--->
+      </div><!---/.span_12--->
 {% else %}
 		<p>No loans found.</p>
 {% endif %}
