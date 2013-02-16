@@ -7,7 +7,7 @@
 
 <h1>{{ user.get_full_name }} ({{ user.username }})</h1>
 
-<div id="logout"><a href="{% url 'loans.views.logout_view' %}">Log out</a></div>
+<div id="logout"><a class="btn" href="{% url 'loans.views.logout_view' %}">Log out</a></div>
 
 {% include "includes/messages.html" %}
 
@@ -30,7 +30,7 @@
 				{{ loan.short_description }}
 			</div>
 			<div class="facts">
-				<table class="loan_facts">
+				<table class=" table table-hover loan_facts">
 					<tr><th>Signing date:</th> <td>{{ loan.signing_date }}</td></tr>
 					<tr><th>Loan amount:</th> <td>{{ loan.amount_formatted }}</td></tr>
 					<tr><th>Country:</th> <td>{{ loan.source_division.country }}</td></tr>
