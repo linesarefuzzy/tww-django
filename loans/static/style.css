@@ -17,7 +17,6 @@ h2, h3 {font-size: 14px; font-weight: bolder;}
 	padding: 3px;
 	font-size: 12px;
 	color: #777;
-	
 }
  .form-signin {
         max-width: 300px;
@@ -62,3 +61,7 @@ li.loan {
 .chart{margin-left:-35px; margin-top:-10px; max-width: 380px;}
 .user_img{margin-top:-200px; margin-right:10px;}
 .mk_loan_btn{width: 107px;margin-top:-80px; margin-right:10px;}
+
+.errorlist {
+	color:red;
+}

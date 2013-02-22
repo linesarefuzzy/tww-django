@@ -7,14 +7,14 @@
 
 {% if loans %}
 
-     <div class="span_12">
-         <div class="row clearfix">
+<div class="span_12">
+	<div class="row clearfix">
 		<ul>
 		{% for loan in loans %}
 				<li class="loan clearfix">
 					<div class="pic img-polaroid">
 						{% if loan.thumb_path %}
-						       <p><a href="{% url 'loans.views.loan_detail' loan.id %}">
+							<p><a href="{% url 'loans.views.loan_detail' loan.id %}">
 								<img src="http://www.theworkingworld.org/{{ loan.thumb_path }}" alt="{{ loan.cooperative }}">
 							</a></p>
 						{% endif %}
@@ -30,8 +30,9 @@
 				</li>
 		{% endfor %}
 		</ul>
-		</div><!---/.row--->
-      </div><!---/.span_12--->
+	</div><!-- /.row -->
+</div><!-- /.span_12 -->
+
 {% else %}
 		<p>No loans found.</p>
 {% endif %}

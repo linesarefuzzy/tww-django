@@ -9,8 +9,6 @@
       <div class="row">
 <h1>{{ loan }}</h1>
 
-{% include "includes/messages.html" %}
-
 {% if loan.picture_path %}
 	<div class="picture img-polaroid">
 		<img src="http://www.theworkingworld.org/{{ loan.picture_path }}" alt="{{ loan }}">
@@ -52,6 +50,6 @@
 		{% endfor %}
 	</ul>
 </div>
-    </div><!---/.row--->
-  </div><!---/.span_12--->
+    </div><!-- /.row -->
+  </div><!-- /.span_12 -->
 {% endblock content %}
