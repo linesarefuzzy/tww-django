@@ -22,7 +22,7 @@
 		</div>
 	</div>
 
-	{% if request.user %}
+	{% if request.user.is_authenticated %}
 	<div id="user">
 		Logged in as <a href="{% url 'loans.views.user_profile' %}">{{ request.user.get_full_name }}</a>. 
 		<a class="btn" href="{% url 'loans.views.logout_view' %}">Log out</a>
