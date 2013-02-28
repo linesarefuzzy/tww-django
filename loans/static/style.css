@@ -46,7 +46,15 @@ font-weight: bolder; font-size: 14px; padding:5px; margin-right: 34px;}
 font-weight: bolder; font-size: 14px; padding: 5px; margin-right: 34px;}
 .sign_in {text-decoration: none; text-transform: uppercase; color: #666; font-family: Sans-Serif, Arial; 
 font-weight: bold; font-size: 14px;}
-
+.user_name {
+    font-size: 18px;
+  font-weight: bold;
+  color: #327d72;
+  margin-top: 10px;
+  margin-right: 0px;
+  margin-bottom: 5px;
+  margin-left: 0px;
+}
 .messages {
 	background-color: rgb(255, 255, 123);
 	display: block;
