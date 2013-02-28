@@ -4,11 +4,49 @@
 /* ----- load boot.css -------*/
 @import url("boot.css");
 
+
+
 body{
-    background: #faf4f1;	
-}
-h1 {font-size: 16px; font-weight: bolder;}
+  background:#efefef url(img/navbar.png)repeat-x top;
+  
+ }
+ 
+ h1 {font-size: 16px; font-weight: bolder;}
 h2, h3 {font-size: 14px; font-weight: bolder;}
+ #header_group {
+           
+            height: 60px;
+            padding: 0;
+}
+
+#header_inner_wrap { 
+                    margin: 0 auto;
+                    width: 960px;
+}
+#brand {
+        position: absolute;
+        margin-top: -3px;
+}
+#nav {
+      float: right;
+            height: auto;
+            width: auto;
+            margin-top: 10px;
+}
+a:hover{color: #fdf8f8; text-decoration: none; }            
+.nav-ui { margin-top: 3px; }
+.nav-item{display: inline; vertical-align: baseline;}
+.whatwedo {text-decoration: none; text-transform: uppercase; color: white; font-family: Sans-Serif, Arial; 
+font-weight: bolder; font-size: 14px; padding: 5px; margin-right: 34px;}
+.where_we_work{text-decoration: none; text-transform: uppercase; color: white; font-family: Sans-Serif, Arial; 
+font-weight: bolder; font-size: 14px; padding: 5px; margin-right: 34px;}
+.loan_list {text-decoration: none; text-transform: uppercase; color: white; font-family: Sans-Serif, Arial; 
+font-weight: bolder; font-size: 14px; padding:5px; margin-right: 34px;}
+.contact {text-decoration: none; text-transform: uppercase; color: white; font-family: Sans-Serif, Arial; 
+font-weight: bolder; font-size: 14px; padding: 5px; margin-right: 34px;}
+.sign_in {text-decoration: none; text-transform: uppercase; color: #666; font-family: Sans-Serif, Arial; 
+font-weight: bold; font-size: 14px;}
+
 .messages {
 	background-color: rgb(255, 255, 123);
 	display: block;
