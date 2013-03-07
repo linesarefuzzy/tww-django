@@ -8,6 +8,7 @@ from django.contrib.auth.views import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from loans.models import *
+from loans.forms import *
 
 def home(request):
 	return render(request, 'home.html')
