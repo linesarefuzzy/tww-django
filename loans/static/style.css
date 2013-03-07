@@ -111,3 +111,7 @@ li.loan {
 .errorlist {
 	color:red;
 }
+
+.usermenu a.dropdown-toggle {
+	color:white;
+}
